@@ -8,12 +8,5 @@
     "name":         "Chungui",
     "email":        "php300@qq.com",
     "homepage":     "https://www.php300.cn"
-  }],
-
-  "repositories": {
-    "packagist": {
-      "type": "git",
-      "url": "https://github.com/xcg340122/PHP300Framework2.0.git"
-    }
-  }
+  }]
 }
