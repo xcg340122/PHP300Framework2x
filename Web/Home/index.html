@@ -1,0 +1,38 @@
+<html>
+<head>
+    <title>PHP300FrameWork - 云端库框架</title>
+    <meta charset="utf-8" />
+    <script src="/Web/Home/js/vue.min.js" type="text/javascript"></script>
+    <script src="/Web/Home/js/axios.min.js" type="text/javascript"></script>
+</head>
+<body>
+<!--默认应用容器-->
+<div id="app">
+    <!--内容渲染对象-->
+    <div v-html="message">
+    </div>
+</div>
+</body>
+<script>
+    var Obj = new Vue({
+        el:'#app',
+        data:{
+            message:'Requesting...',
+            requestUrl:'/api.php'
+        },
+
+        methods:{
+          init:function(){
+              axios.get(this.requestUrl)
+                  .then(function (response) {
+                      Obj.message = response.data;
+                  })
+                  .catch(function (error) {
+                      Obj.message = '<span style="color: red">' + error + '</span>';
+                  });
+          }
+        }
+    });
+    Obj.init();
+</script>
+</html>

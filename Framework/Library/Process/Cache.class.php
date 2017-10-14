@@ -1,0 +1,50 @@
+<?php
+
+namespace Framework\Library\Process;
+
+/**
+ * 缓存器
+ * Class Cache
+ * @package Framework\Library\Process
+ */
+class Cache
+{
+
+    /**
+     * 操作对象
+     * @var object
+     */
+    private $object;
+
+    /**
+     * 数据库驱动映射
+     * @var array
+     */
+    private $CacheType = [
+
+        'memcache'  => 'Drive\Cache\Memcache',
+
+        'redis'   => 'Drive\Cache\Redis'
+    ];
+
+    /**
+     * 初始化缓存配置
+     */
+    public function init()
+    {
+        $CacheConfig = \Framework\App::$app->get('Config')->get('Cache');
+        if(is_array($CacheConfig) && isset($CacheConfig['ip'])){
+            $this->object = \Framework\App::$app->get(strtolower(cacheType));
+            $this->object->connect($CacheConfig['ip'],$CacheConfig['port']);
+        }
+    }
+
+    /**
+     * 获取操作对象实例
+     * @return object
+     */
+    public function getObj()
+    {
+        return $this->object;
+    }
+}

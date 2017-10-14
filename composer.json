@@ -1,0 +1,20 @@
+{
+  "name":             "php300/framework",
+  "description":      "Fast and efficient framework for development - php300",
+  "keywords":         ["php300", "framework", "project"],
+  "homepage":         "http://framework.php300.cn ",
+  "license":          "MIT",
+  "authors": [{
+    "name":         "Elvis Lim",
+    "email":        "elvis@xxx.com",
+    "homepage":     "http://www.xxx.com",
+    "role":         "Engineer"
+  }],
+
+  "repositories": {
+    "packagist": {
+      "type": "git",
+      "url": "https://github.com/xcg340122/PHP300Framework2.0.git"
+    }
+  }
+}
