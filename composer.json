@@ -2,12 +2,12 @@
   "name":             "php300/framework",
   "description":      "Fast and efficient framework for development - php300",
   "keywords":         ["php300", "framework", "project"],
-  "homepage":         "http://framework.php300.cn ",
+  "homepage":         "https://framework.php300.cn",
   "license":          "Apache2",
   "authors": [{
     "name":         "Chungui",
     "email":        "php300@qq.com",
-    "homepage":     "http://www.php300.cn"
+    "homepage":     "https://www.php300.cn"
   }],
 
   "repositories": {
