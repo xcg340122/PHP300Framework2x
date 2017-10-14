@@ -14,6 +14,6 @@
 
   "require": {
     "php": ">=5.4.0",
-    "php300/framework": "~2.0.0"
+    "php300/framework": "~2.0.*"
   }
 }
