@@ -3,12 +3,11 @@
   "description":      "Fast and efficient framework for development - php300",
   "keywords":         ["php300", "framework", "project"],
   "homepage":         "http://framework.php300.cn ",
-  "license":          "MIT",
+  "license":          "Apache2",
   "authors": [{
-    "name":         "Elvis Lim",
-    "email":        "elvis@xxx.com",
-    "homepage":     "http://www.xxx.com",
-    "role":         "Engineer"
+    "name":         "Chungui",
+    "email":        "php300@qq.com",
+    "homepage":     "http://www.php300.cn",
   }],
 
   "repositories": {
