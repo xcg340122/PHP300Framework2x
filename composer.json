@@ -1,12 +1,13 @@
 {
-  "name":             "php300/framework",
-  "description":      "Fast and efficient framework for development - php300",
-  "keywords":         ["php300", "framework", "project"],
-  "homepage":         "https://framework.php300.cn",
-  "license":          "Apache2",
+  "name":"php300/framework",
+  "description":"Fast and efficient framework for development - php300",
+  "keywords":["php300", "framework", "project"],
+  "homepage":"https://framework.php300.cn",
+  "license":"Apache-2.0",
+  "type":"project",
   "authors": [{
-    "name":         "Chungui",
-    "email":        "php300@qq.com",
-    "homepage":     "https://www.php300.cn"
+    "name":"Chungui",
+    "email":"php300@qq.com",
+    "homepage":"https://www.php300.cn"
   }]
 }
