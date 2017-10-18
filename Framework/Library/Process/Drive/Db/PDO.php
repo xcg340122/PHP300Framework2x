@@ -32,7 +32,7 @@ class Pdo implements DbInterfaces
      * 数据错误信息
      * @var string
      */
-    public $dbErrorMsg = 'We are currently experiencing technical difficulties. We have a bunch of monkies working really hard to fix the problem. Check back soon: ';
+    public $dbErrorMsg = 'We are currently experiencing technical difficulties. Need check back soon: ';
 
     /**
      * 操作表名
