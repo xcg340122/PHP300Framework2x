@@ -108,16 +108,32 @@ class Mysqli implements DbInterfaces
     }
 
     /**
+     * If string starts with
+     *
+     * @param $haystack
+     * @param $needle
+     * @return bool
+     */
+    protected function startsWith($haystack, $needle)
+    {
+        return $needle === "" || strrpos($haystack, $needle, -strlen($haystack)) !== FALSE;
+    }
+
+    /**
      * 执行SQL
      * @param string $sql
      * @return mixed
      */
-    public function query($queryString = '',$method = null)
+    public function query($queryString = '',$method = null,$select=false)
     {
         if ($this->link != null) {
             $this->queryId = mysqli_query($this->link, $queryString);
             if(!$this->queryId){
                 exit($this->getError());
+            }
+            if ($this->startsWith(strtolower($queryString), "select") && $select===false) {
+                $this->result = mysqli_fetch_all($this->queryId,MYSQLI_ASSOC);
+                return $this;
             }
             return $this->queryId;
         } else {
@@ -216,7 +232,7 @@ class Mysqli implements DbInterfaces
             $STORE = $qryArray['method'];
         }
 
-        $this->result = mysqli_fetch_all($this->query($qryStr),$STORE);
+        $this->result = mysqli_fetch_all($this->query($qryStr),$STORE,true);
 
         $this->total = $this->affectedRows();
 

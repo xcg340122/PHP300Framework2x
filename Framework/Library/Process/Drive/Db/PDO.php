@@ -178,7 +178,7 @@ class Pdo implements DbInterfaces
             $qry->execute();
             $qry->setFetchMode($method);
 
-            if ($this->startsWith($queryString, "SELECT")) {
+            if ($this->startsWith(strtolower($queryString), "select")) {
                 $this->result = $qry->fetchAll();
             }
 
