@@ -128,9 +128,6 @@ class Mysqli implements DbInterfaces
     {
         if ($this->link != null) {
             $this->queryId = mysqli_query($this->link, $queryString);
-            if(!$this->queryId){
-                exit($this->getError());
-            }
             if ($this->startsWith(strtolower($queryString), "select") && $select===false) {
                 $this->result = mysqli_fetch_all($this->queryId,MYSQLI_ASSOC);
                 return $this;
