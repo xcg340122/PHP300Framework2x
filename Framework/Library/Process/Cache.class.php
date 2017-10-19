@@ -34,7 +34,7 @@ class Cache
     {
         $CacheConfig = \Framework\App::$app->get('Config')->get('Cache');
         if(is_array($CacheConfig) && isset($CacheConfig['ip'])){
-            $this->object = \Framework\App::$app->get(strtolower(cacheType));
+            $this->object = \Framework\App::$app->get($this->CacheType[strtolower($CacheConfig['cacheType'])]);
             $this->object->connect($CacheConfig['ip'],$CacheConfig['port']);
         }
         return $this;

@@ -129,8 +129,7 @@ class Mysqli implements DbInterfaces
         if ($this->link != null) {
             $this->queryId = mysqli_query($this->link, $queryString);
             if ($this->startsWith(strtolower($queryString), "select") && $select===false) {
-                $method = $method!=null ? $method : MYSQLI_ASSOC;
-                $this->result = mysqli_fetch_all($this->queryId,$method);
+                $this->result = mysqli_fetch_all($this->queryId,MYSQLI_ASSOC);
                 return $this;
             }
             return $this->queryId;
@@ -230,7 +229,11 @@ class Mysqli implements DbInterfaces
             $STORE = $qryArray['method'];
         }
 
-        $this->result = mysqli_fetch_all($this->query($qryStr,$STORE,true),$STORE);
+        $res = $this->query($qryStr,'',true);
+
+        if($res){
+            $this->result = mysqli_fetch_all($res,$STORE);
+        }
 
         $this->total = $this->affectedRows();
 
