@@ -81,6 +81,16 @@ function post($value,$null='')
 function extend($name,$type=0)
 {
     $Extend = \Framework\App::$app->get('Extend');
+    if(!empty($name) && is_array($name)){
+        foreach($name as $value){
+            if($type==1){
+                $Extend->addPackage($value);
+            }else{
+                $Extend->addClass($value);
+            }
+        }
+        return true;
+    }
     if($type==1){
         return $Extend->addPackage($name);
     }
