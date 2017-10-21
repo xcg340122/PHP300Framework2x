@@ -54,7 +54,7 @@ class Extend
             }
             if(in_array($extension,['zip','tar'])){
                 $Packagezip = $this->getPackageName($PackageName);
-                $this->releasePackage($PackageName,$this->PackagePath.'PackCache',$Packagezip);
+                $this->releasePackage($PackageName,$this->PackagePath.'Cache',$Packagezip);
             }
         }
         return false;
@@ -99,18 +99,16 @@ class Extend
      */
     private function releasePackage($zipfile='',$folder='',$Packagezip)
     {
+        if($this->iszipload($folder,$Packagezip)){
+            return true;
+        }
         if(class_exists('ZipArchive',false)){
             $zip = new \ZipArchive;
             $res = $zip->open($zipfile);
             if ($res === TRUE) {
                 $zip->extractTo($folder);
                 $zip->close();
-
-                $autoload = $folder.$Packagezip.'/autoload.php';
-                if(file_exists($autoload)){
-                    include_once $autoload;
-                    $this->Extendbox[$Packagezip] = $this->getPackageInfo($folder.$Packagezip.'/info.php');
-                }
+                $this->iszipload($folder,$Packagezip);
             } else {
                 $error = [
                     'file' => $zipfile,
@@ -127,6 +125,22 @@ class Extend
         }
     }
 
+    /**
+     * 加载扩展文件
+     * @param $folder
+     * @param $Packagezip
+     */
+    private function iszipload($folder,$Packagezip)
+    {
+        $autoload = $folder . '/' . $Packagezip . '/autoload.php';
+        if(file_exists($autoload)){
+            include_once $autoload;
+            $this->Extendbox[$Packagezip] = $this->getPackageInfo($folder.$Packagezip.'/info.php');
+            file_put_contents($folder . '/' . $Packagezip.'/marked.txt','This is an automatically unpacked package. Please do not manually modify or delete it!  - PHP300Framework2.0');
+            return true;
+        }
+        return false;
+    }
 
     /**
      * 返回包名
