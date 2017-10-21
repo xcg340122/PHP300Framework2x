@@ -82,8 +82,7 @@ function extend($name,$type=0)
 {
     $Extend = \Framework\App::$app->get('Extend');
     if($type==1){
-        $Extend->addPackage($name);
-        return true;
+        return $Extend->addPackage($name);
     }
-    $Extend->addClass($name);
+    return $Extend->addClass($name);
 }
