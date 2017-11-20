@@ -207,7 +207,7 @@ class Mysqli implements DbInterfaces
      */
     public function select($qryArray = [])
     {
-        $fetchFields = (isset($qryArray['field']) && count($qryArray['field'])>0) ? implode(', ',$qryArray['field']): '*';
+        $fetchFields = (isset($qryArray['field']) && count($qryArray['field'])>0) ? implode(',',$qryArray['field']): '*';
 
         $qryStr = 'SELECT '.$fetchFields.' FROM `'.$this->tableName.'` '.((isset($qryArray['condition']) && $qryArray['condition']!=NULL)?$qryArray['condition']:'');
 
