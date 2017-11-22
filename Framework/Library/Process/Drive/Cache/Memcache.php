@@ -70,7 +70,7 @@ class Memcache implements CacheInterfaces
      */
     public function delete($key,$timeout = 0)
     {
-        if($this->exists($key)){
+        if(!empty($key)){
             return $this->obj->delete($key,$timeout);
         }
         return false;
