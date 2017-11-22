@@ -70,7 +70,10 @@ class Memcache implements CacheInterfaces
      */
     public function delete($key,$timeout = 0)
     {
-        return $this->obj->delete($key,$timeout);
+        if($this->exists($key)){
+            return $this->obj->delete($key,$timeout);
+        }
+        return false;
     }
 
     /**
@@ -83,6 +86,17 @@ class Memcache implements CacheInterfaces
     public function replace($key,$value,$iszip=false,$expire = 3600)
     {
         return $this->obj->replace($key,$value,$iszip,$expire);
+    }
+    
+    /**
+     * 检测key是否存在
+     * @param $key
+     * @return bool
+     */
+    public function exists($key)
+    {
+        $data = $this->get($key);
+        return $data !== false;
     }
 
     /**
