@@ -49,7 +49,10 @@ class Memcache implements CacheInterfaces
      */
     public function get($key)
     {
-        return $this->obj->get($key);
+        if(!empty($key)){
+            return $this->obj->get($key);
+        }
+        return false;
     }
 
     /**
@@ -87,7 +90,7 @@ class Memcache implements CacheInterfaces
     {
         return $this->obj->replace($key,$value,$iszip,$expire);
     }
-    
+
     /**
      * 检测key是否存在
      * @param $key
