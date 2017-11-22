@@ -73,7 +73,10 @@ class Redis implements CacheInterfaces
      */
     public function delete($key,$timeout = 0)
     {
-        return $this->obj->delete($key);
+        if($this->exists($key)){
+            return $this->obj->delete($key);
+        }
+        return false;
     }
 
     /**
@@ -86,6 +89,16 @@ class Redis implements CacheInterfaces
     public function replace($key,$value,$iszip=false,$expire = 3600)
     {
         return $this->obj->getSet($key,$value);
+    }
+    
+    /**
+     * 检测key是否存在
+     * @param $key
+     * @return bool
+     */
+    public function exists($key)
+    {
+        return $this->obj->exists($key);
     }
 
     /**
