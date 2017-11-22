@@ -47,6 +47,13 @@ interface CacheInterface{
      * @return mixed
      */
     public function replace($key,$value,$iszip=false,$expire = 3600);
+    
+    /**
+     * 检查值是否存在
+     * @param $key
+     * @return mixed
+     */
+    public function exists($key);
 
     /**
      * 重置所有标识
