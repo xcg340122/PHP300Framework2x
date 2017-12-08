@@ -183,7 +183,7 @@ class Auxiliary
                     case 'PUT': parse_str(file_get_contents('php://input'),$Data); break;
                 };break;
         }
-        if(!empty($Data[$name])){
+        if(isset($Data[$name])){
             if(is_array($Data[$name])){
                 foreach($Data[$name] as $key => $val){
                     $Data[$key] = ($isEncode)?((function_exists($function))?($function($val)):($val)):($val);
@@ -191,7 +191,7 @@ class Auxiliary
                 return $Data[$name];
             } else {
                 $value = ($isEncode)?((function_exists($function))?($function($Data[$name])):($Data[$name])):($Data[$name]);
-                return ($value)?($value):(($null)?($null):(''));
+                return (!is_null($value))?($value):(($null)?($null):(''));
             }
         } else {
             return $null;
