@@ -129,7 +129,7 @@ class Mysqli implements DbInterfaces
         if ($this->link != null) {
             $this->queryId = mysqli_query($this->link, $queryString);
             $status = $this->queryId !== false ? 'success' : 'error';
-            \Framework\App::$app->get('Log')->Record(\Framework\Library\Process\Running::$framworkPath .'/Project/Runtime/datebase','sql',"[{$status}] ".$queryString);
+            \Framework\App::$app->get('Log')->Record(\Framework\Library\Process\Running::$framworkPath .'/Project/Runtime/Datebase','sql',"[{$status}] ".$queryString);
             if ($this->startsWith(strtolower($queryString), "select") && $select===false) {
                 $this->result = mysqli_fetch_all($this->queryId,MYSQLI_ASSOC);
                 return $this;
