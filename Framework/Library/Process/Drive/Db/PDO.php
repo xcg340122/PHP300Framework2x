@@ -178,6 +178,8 @@ class Pdo implements DbInterfaces
             $qry->execute();
             $qry->setFetchMode($method);
 
+            \Framework\App::$app->get('Log')->Record(\Framework\Library\Process\Running::$framworkPath .'/Project/Runtime/datebase','sql',$queryString);
+            
             if ($this->startsWith(strtolower($queryString), "select")) {
                 $this->result = $qry->fetchAll();
             }
