@@ -350,7 +350,15 @@ class Mysqli implements DbInterfaces
                 $affectedTo = [];
 
                 foreach($where as $key=>$val){
-                    $affectedTo[] = $key." = '".$val."'";
+                    if(is_array($val) && count($val) > 1) {
+                        if(trim(strtolower($val[0])) == 'in'){
+                            $affectedTo[] = $key." in($val[1]) ";
+                        }else{
+                            $affectedTo[] = $key." {$val[0]} '".$val[1]."'";
+                        }
+                    }else {
+                        $affectedTo[] = $key." = '".$val."'";
+                    }
                 }
 
                 $whereCond = ' WHERE '.implode(" AND ", $affectedTo);
