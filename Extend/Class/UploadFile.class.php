@@ -99,7 +99,8 @@ class Upload
 		$savePath = rtrim($savePath,'/').'/';
 		if(!is_dir($savePath)){
 			//目录不存在则尝试创建
-			if(!mkdir($savePath)){
+			$this->createDir($savePath);
+			if(!is_dir($savePath)){
 				$this->error = "目录{$savePath}不存在";
 				return false;
 			}
@@ -224,14 +225,16 @@ class Upload
 	{
 		$fileArray = array();
 		$n = 0;
+
 		foreach($files as $file){
 			if(is_array($file['name'])){
 				//关联数组
 				$keys = array_keys($file);
 				$count= count($file['name']);
 				for($i = 0;$i < $count;$i++){
-					foreach($keys as $key)
+					foreach($keys as $key){
 						$fileArray[$n][$key] = $file[$key][$i];
+					}
 					$n++;
 				}
 			}
@@ -380,5 +383,14 @@ class Upload
 	public function getErrorMsg()
 	{
 		return $this->error;
+	}
+
+
+	private function createDir($path)
+	{
+		if (!file_exists($path)){
+			$this->createDir(dirname($path));
+			mkdir($path, 0777);
+		}
 	}
 }
