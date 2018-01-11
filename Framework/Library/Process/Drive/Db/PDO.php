@@ -32,7 +32,7 @@ class Pdo implements DbInterfaces
      * 数据错误信息
      * @var string
      */
-    public $dbErrorMsg = 'We are currently experiencing technical difficulties. Need check back soon: ';
+    public $dbErrorMsg = 'SQL IN WRONG: ';
 
     /**
      * 操作表名
@@ -52,6 +52,10 @@ class Pdo implements DbInterfaces
      */
     protected $queryDebug = [];
 
+    /**
+     * 获取异常信息
+     * @return mixed
+     */
     public function getError()
     {
         return $this->pdo->errorInfo();
@@ -78,7 +82,7 @@ class Pdo implements DbInterfaces
             $this->pdo = new \PDO($dsn, $config['username'], $config['password'], $opt);
 
             return $this->pdo;
-        } catch (PDOException $ex) {
+        } catch (\PDOException $ex) {
             exit($this->dbErrorMsg . $ex->getMessage());
         }
     }
@@ -160,25 +164,18 @@ class Pdo implements DbInterfaces
         return $needle === "" || strrpos($haystack, $needle, -strlen($haystack)) !== FALSE;
     }
 
-
     /**
      * 执行SQL
      * @param $queryString
      * @param null $method
      * @return $this
      */
-    public function query($queryString, $method = NULL)
+    public function query($queryString,$select=false)
     {
-        if (!$method) {
-            $method = $this->fetchMethod;
-        }
-
         try {
             $qry = $this->pdo->prepare($queryString);
             $qry->execute();
-            $qry->setFetchMode($method);
-
-            \Framework\App::$app->get('Log')->Record(\Framework\Library\Process\Running::$framworkPath .'/Project/Runtime/Datebase','sql',$queryString);
+            $qry->setFetchMode($this->fetchMethod);
 
             if ($this->startsWith(strtolower($queryString), "select")) {
                 $this->result = $qry->fetchAll();
@@ -186,11 +183,12 @@ class Pdo implements DbInterfaces
 
             $this->total = $qry->rowCount();
 
-            $this->queryDebug = ['string' => $queryString, 'value' => NULL, 'method' => $method];
+            $this->queryDebug = ['string' => $queryString , 'total' => $this->total];
 
-        } catch (PDOException $ex) {
-            echo $this->dbErrorMsg . $ex->getMessage();
-            exit();
+            $this->handleres($queryString);
+
+        } catch (\PDOException $ex) {
+            $this->handleres($queryString,true.$ex);
         }
 
         return $this;
@@ -217,43 +215,54 @@ class Pdo implements DbInterfaces
      */
     public function select($qryArray = [])
     {
-        $fetchFields = (isset($qryArray['field']) && count($qryArray['field'])>0) ? implode(', ',$qryArray['field']): '*';
+        $field = '';$join='';$where = '';$order='';$group='';$limit='';
 
-        $qryStr = 'SELECT '.$fetchFields.' FROM `'.$this->tableName.'` '.((isset($qryArray['condition']) && $qryArray['condition']!=NULL)?$qryArray['condition']:'');
-
-        if(isset($qryArray['groupby']) && $qryArray['groupby'] != NULL) {
-            $qryStr .= ' GROUP BY '.$qryArray['groupby'];
+        if(isset($qryArray['field'])){
+            $field = is_array($qryArray['field']) ? implode(',',$qryArray['field']) : $qryArray['field'];
+            if(empty($field)) $field = ' * ';
         }
 
-        if(isset($qryArray['orderby']) && $qryArray['orderby'] != NULL) {
-            $qryStr .= ' ORDER BY '.$qryArray['orderby'];
+        if(isset($qryArray['join'])){
+            $join .= ' '.is_array($qryArray['join']) ? implode(' ',$qryArray['join']) : $qryArray['join'];
         }
-
-        if(isset($qryArray['limit']) && $qryArray['limit'] != NULL) {
-            $qryStr .= ' LIMIT '.$qryArray['limit'];
+        if(isset($qryArray['where'])){
+            $where = $this->structureWhere($qryArray['where']);
         }
+        if(isset($qryArray['orderby'])){
+            $order = is_array($qryArray['orderby']) ? implode(',',$qryArray['orderby']) : $qryArray['orderby'];
+            $order = ' ORDER BY '.$order;
+        }
+        if(isset($qryArray['groupby'])){
+            $group = is_array($qryArray['groupby']) ? implode(',',$qryArray['groupby']) : $qryArray['groupby'];
+            $group = ' GROUP BY '.$group;
+        }
+        if(isset($qryArray['limit'])){
+            $limit = is_array($qryArray['limit']) ? implode(',',$qryArray['limit']) : $qryArray['limit'];
+            $limit = ' LIMIT '.$limit;
+        }
+        $queryString = 'SELECT '.$field.' FROM '.$this->tableName.$join.$where.$group.$order.$limit;
 
         try {
-            $qry = $this->pdo->prepare($qryStr);
+
+            $qry = $this->pdo->prepare($queryString);
+
             $qry->execute();
 
-            if(isset($qryArray['method']) && $qryArray['method']!=NULL) {
-                $qry->setFetchMode($qryArray['method']);
-            }
-            else {
-                $qry->setFetchMode($this->fetchMethod);
-            }
+            $qry->setFetchMode($this->fetchMethod);
 
             $this->result = $qry->fetchAll();
 
             $this->total = $qry->rowCount();
 
-            $this->queryDebug = ['string' => $qryStr, 'value' => NULL, 'method' => (isset($qryArray['method']) ? $qryArray['method'] : $this->fetchMethod)];
+            $this->queryDebug = ['string' => $queryString , 'affectedRows' => $this->total];
+
+            $this->handleres($queryString);
+
+            return $this;
         }
-        catch (PDOException $ex){
-            exit($this->dbErrorMsg . $ex->getMessage(). ' query: '.$qryStr);
+        catch (\PDOException $ex){
+            $this->handleres($queryString,true,$ex);
         }
-        return $this;
     }
 
 
@@ -263,214 +272,134 @@ class Pdo implements DbInterfaces
      * @param array $unique
      * @return array
      */
-    public function insert($dataArray = [], $unique = [])
+    public function insert($dataArray = [])
     {
-        $fields = [];
-        $executeArray = [];
-        $duplicate = false;
-
-        foreach($dataArray as $key=>$val){
-            $fields[] = ':'.$key;
-            $executeArray[':'.$key] = $val;
-
-        }
-
-        $fields_str = implode(',',$fields);
-        $rawFieldsStr = implode(',', str_replace(':','',$fields));
-
-        if( count($unique) > 0 ){
-            $condition = array();
-            foreach($unique as $fieldName){
-                $condition[] = $fieldName." = '".$dataArray[$fieldName]."' ";
+        if(is_array($dataArray) && count($dataArray) > 0){
+            $v_key = '';$v_value = '';
+            foreach($dataArray as $key=>$value){
+                $v_key .= '`'.$key . '`,';
+                $v_value .= is_int($value) ? $value . ',' : "'{$value}',";
             }
+            $v_key = rtrim($v_key,'.,');$v_value = rtrim($v_value,'.,');
 
-            $cQryStr = "SELECT ".$unique[0]." FROM ".$this->tableName." WHERE ".implode('AND ',$condition);
-            $cQry = $this->pdo->query($cQryStr);
-
-            if( $cQry->rowCount() > 0 ) $duplicate = true;
-            else $duplicate = false;
-        }
-
-        $affectedRow = 0;
-        $lastInsertedId = 0;
-
-        if(!$duplicate) {
-            $qryStr = 'INSERT INTO '.$this->tableName.' ('.$rawFieldsStr.') VALUES('.$fields_str.')';
+            $queryString = 'INSERT INTO `'.$this->tableName.'` ('.$v_key.') VALUES('.$v_value.');';
 
             try {
-                $qry = $this->pdo->prepare($qryStr);
-                $qry->execute($executeArray);
-
-                $affectedRow = $qry->rowCount();
+                $this->pdo->exec($queryString);
 
                 $lastInsertedId = $this->pdo->lastInsertId();
 
-                $this->queryDebug = ['string' => $qryStr, 'value' => $executeArray, 'method' => false];
+                $this->queryDebug = ['string' => $queryString, 'value' => $value , 'insertedid' => $lastInsertedId];
+
+                $this->handleres($queryString);
+
+                return $lastInsertedId;
             }
-            catch (PDOException $ex){
-                exit($this->dbErrorMsg . $ex->getMessage());
+            catch (\PDOException $ex){
+                $this->handleres($queryString,true,$ex);
             }
         }
-
-        return [
-            'affected_row' => $affectedRow,
-            'inserted_id' => $lastInsertedId,
-            'is_duplicate' => (bool) $duplicate
-        ];
+        return false;
     }
 
     /**
      * 修改数据
      * @param array $dataArray
-     * @param $where
-     * @param array $unique
-     * @return array
+     * @param array $where
+     * @return bool
      */
-    public function update($dataArray = [], $where = [], $unique = [])
+    public function update($dataArray = [], $where = [])
     {
-        $cQryStr = '';
-        $tableName = $this->tableName;
-
-        $fields = [];
-        $executeArray = [];
-
-        foreach($dataArray as $key=>$val){
-            $fields[] = $key.' = :'.$key;
-            $executeArray[':'.$key] = $val;
-
-        }
-
-        $fields_str = implode(', ',$fields);
-
-        if( count($unique) > 0 ){
-            $condition = [];
-
-            foreach($unique as $fieldName){
-                $condition[] = $fieldName." = '".$dataArray[$fieldName]."' ";
+        if(is_array($dataArray) && count($dataArray) > 0){
+            $updata = '';
+            foreach($dataArray as $key=>$value){
+                $value = is_int($value) ? $value : "'{$value}'";
+                $updata .= "`$key`={$value},";
             }
-
-            $extendedCondition = [];
-
-            if( is_array($where) && count($where) > 0 ){
-                foreach($where as $whereKey=>$whereVal){
-                    $extendedCondition[] = $whereKey." != '".$whereVal."' ";
-                }
-            }
-
-            $cQryStr = "SELECT ".$unique[0]." FROM ".$tableName." WHERE ".implode('AND ',$condition);
-            if( count($extendedCondition) > 0 ) $cQryStr .= "AND ".implode('AND ', $extendedCondition);
-
-            $cQry = $this->pdo->query($cQryStr);
-
-            if( $cQry->rowCount() > 0 ) $duplicate = true;
-            else $duplicate = false;
-        }
-        else {
-            $duplicate = false;
-        }
-
-        $affectedRow = 0;
-
-        if(!$duplicate && !empty($where) ) {
-
-            if(is_array($where)) {
-                $affectedTo = [];
-
-                foreach($where as $key=>$val){
-                    if(is_array($val) && count($val) > 1) {
-                        if(trim(strtolower($val[0])) == 'in'){
-                            $affectedTo[] = $key." in($val[1]) ";
-                        }else{
-                            $affectedTo[] = $key." {$val[0]} '".$val[1]."'";
-                        }
-                    }else {
-                        $affectedTo[] = $key." = '".$val."'";
-                    }
-                }
-
-                $whereCond = ' WHERE '.implode(" AND ", $affectedTo);
-            }
-            else {
-                $whereCond = ' WHERE '.$where;
-            }
-
-            $qryStr = 'UPDATE '.$tableName.' SET '.$fields_str.$whereCond;
+            if(!empty($where)) $where = $this->structureWhere($where);
+            $queryString = 'UPDATE '.$this->tableName.' SET '.rtrim($updata,'.,').$where;
 
             try {
-                $qry = $this->pdo->prepare($qryStr);
+                $this->total = $this->pdo->exec($queryString);
 
-                $qry->execute($executeArray);
+                $this->queryDebug = ['string' => $queryString, 'update' => $updata , 'affectedRows' => $this->total];
 
-                $affectedRow = $qry->rowCount();
+                $this->handleres($queryString);
 
-                $this->queryDebug = ['string' => $qryStr, 'value' => $executeArray, 'method' => false];
-
+                return $this->total;
             }
-            catch (PDOException $ex){
-                echo $this->dbErrorMsg . $ex->getMessage();
-                exit();
+            catch (\PDOException $ex){
+                $this->handleres($queryString,true,$ex);
             }
-        }
-        else {
-            $this->queryDebug = ['string' => $cQryStr, 'value' => NULL, 'method' => $this->fetchMethod];
-        }
 
-        return [
-            'affected_row' => $affectedRow,
-            'is_duplicate' => (bool) $duplicate
-        ];
+        }
+        return false;
     }
 
 
     /**
      * 删除数据
      * @param $where
-     * @return array
+     * @return mixed
      */
     public function delete($where)
     {
-        $tableName = $this->tableName;
+        if(!empty($where)) $where = $this->structureWhere($where);
 
-        $affectedRow = 0;
-        if($where!=NULL || (is_array($where) && count($where)) > 0 ){
-            if(is_array($where)) {
-                $affectedTo = array();
-                foreach($where as $key=>$val){
-                    if(is_array($val) && count($val) > 1) {
-                        if(trim(strtolower($val[0])) == 'in'){
-                            $affectedTo[] = $key." in($val[1]) ";
-                        }else{
-                            $affectedTo[] = $key." {$val[0]} '".$val[1]."'";
-                        }
-                    }else {
-                        $affectedTo[] = $key." = '".$val."'";
-                    }
-                }
-                $whereCond = 'WHERE '.implode(" AND ", $affectedTo);
-            }
-            else {
-                $whereCond = 'WHERE '.$where;
-            }
+        $queryString = 'DELETE FROM '.$this->tableName.$where;
 
-            $qryStr = 'DELETE FROM '.$tableName.' '.$whereCond;
+        try {
+            $this->total = $this->pdo->exec($queryString);
 
-            try {
-                $qry = $this->pdo->prepare($qryStr);
-                $qry->execute();
+            $this->queryDebug = ['string' => $queryString, 'affectedRows' => $this->total];
 
-                $affectedRow = $qry->rowCount();
+            $this->handleres($queryString);
 
-                $this->queryDebug = ['string' => $qryStr, 'value' => NULL, 'method' => false];
-
-            }
-            catch (PDOException $ex){
-                exit($this->dbErrorMsg . $ex->getMessage());
-            }
+            return $this->total;
         }
+        catch (\PDOException $ex){
+            $this->handleres($queryString,true,$ex);
+        }
+    }
 
-        return [
-            'affected_row' => $affectedRow
-        ];
+    /**
+     * 条件构造
+     * @param array $whereData
+     */
+    private function structureWhere($whereData = [])
+    {
+        $where = ' WHERE ';
+        if(is_array($whereData)){
+            foreach($whereData as $key=>$value){
+                if(is_array($value) && count($value) > 1){
+                    if(strtolower($value[0]) == 'in'){
+                        $where .= $key . 'IN('.$value[1].') AND';
+                    }else{
+                        $value[1] = is_numeric($value[1]) ? $value[1] : "'" . $value[1] . "'";
+                        $where .= $key . $value[0] . $value[1] . ' AND';
+                    }
+                }else{
+                    $where .= $key . '=' . $value . ' AND';
+                }
+            }
+            return rtrim($where,'. AND');
+        }
+        return $where.$whereData;
+    }
+
+    /**
+     * 处理结果
+     * @param $sql
+     * @param bool $iserror
+     * @param array $ex
+     */
+    private function handleres($sql,$iserror=false,$ex=[])
+    {
+        $status = $iserror === false ? 'success' : 'error';
+        \Framework\App::$app->get('Log')->Record(\Framework\Library\Process\Running::$framworkPath .'/Project/Runtime/Datebase','sql',"[{$status}] ".$sql);
+        if($iserror){
+            exit($this->dbErrorMsg . $ex->getMessage());
+        }
     }
 
 }

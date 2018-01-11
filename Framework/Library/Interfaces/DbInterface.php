@@ -25,9 +25,9 @@ interface DbInterface{
      * 执行SQL
      * @param $queryString
      * @param $method
-     * @return mixed
+     * @return $select
      */
-    public function query($queryString,$method);
+    public function query($queryString,$select);
 
     /**
      * 设置表
@@ -49,7 +49,7 @@ interface DbInterface{
      * @param array $unique
      * @return mixed
      */
-    public function insert($dataArray = [], $unique = []);
+    public function insert($dataArray = []);
 
     /**
      * 修改数据
@@ -58,7 +58,7 @@ interface DbInterface{
      * @param array $unique
      * @return mixed
      */
-    public function  update($dataArray = [], $where, $unique = []);
+    public function  update($dataArray = [], $where);
 
     /**
      * 删除数据

@@ -57,6 +57,7 @@ class Mysqli implements DbInterfaces
         if(is_resource($this->link)){
             return mysqli_error($this->link);
         }
+        return 'Invalid resources';
     }
 
     /**
@@ -124,7 +125,7 @@ class Mysqli implements DbInterfaces
      * @param string $sql
      * @return mixed
      */
-    public function query($queryString = '',$method = null,$select=false)
+    public function query($queryString = '',$select=false)
     {
         if ($this->link != null) {
             $this->queryId = mysqli_query($this->link, $queryString);
@@ -209,37 +210,42 @@ class Mysqli implements DbInterfaces
      */
     public function select($qryArray = [])
     {
-        $fetchFields = (isset($qryArray['field']) && count($qryArray['field'])>0) ? implode(',',$qryArray['field']): '*';
+        $field = '';$join='';$where = '';$order='';$group='';$limit='';
 
-        $qryStr = 'SELECT '.$fetchFields.' FROM `'.$this->tableName.'` '.((isset($qryArray['condition']) && $qryArray['condition']!=NULL)?$qryArray['condition']:'');
-
-        if(isset($qryArray['groupby']) && $qryArray['groupby'] != NULL) {
-            $qryStr .= ' GROUP BY '.$qryArray['groupby'];
+        if(isset($qryArray['field'])){
+            $field = is_array($qryArray['field']) ? implode(',',$qryArray['field']) : $qryArray['field'];
+            if(empty($field)) $field = ' * ';
         }
 
-        if(isset($qryArray['orderby']) && $qryArray['orderby'] != NULL) {
-            $qryStr .= ' ORDER BY '.$qryArray['orderby'];
+        if(isset($qryArray['join'])){
+            $join .= ' '.is_array($qryArray['join']) ? implode(' ',$qryArray['join']) : $qryArray['join'];
         }
-
-        if(isset($qryArray['limit']) && $qryArray['limit'] != NULL) {
-            $qryStr .= ' LIMIT '.$qryArray['limit'];
+        if(isset($qryArray['where'])){
+            $where = $this->structureWhere($qryArray['where']);
         }
-
-        $STORE = MYSQLI_ASSOC;
-
-        if(isset($qryArray['method']) && $qryArray['method']!=NULL) {
-            $STORE = $qryArray['method'];
+        if(isset($qryArray['orderby'])){
+            $order = is_array($qryArray['orderby']) ? implode(',',$qryArray['orderby']) : $qryArray['orderby'];
+            $order = ' ORDER BY '.$order;
         }
+        if(isset($qryArray['groupby'])){
+            $group = is_array($qryArray['groupby']) ? implode(',',$qryArray['groupby']) : $qryArray['groupby'];
+            $group = ' GROUP BY '.$group;
+        }
+        if(isset($qryArray['limit'])){
+            $limit = is_array($qryArray['limit']) ? implode(',',$qryArray['limit']) : $qryArray['limit'];
+            $limit = ' LIMIT '.$limit;
+        }
+        $queryString = 'SELECT '.$field.' FROM '.$this->tableName.$join.$where.$group.$order.$limit;
 
-        $res = $this->query($qryStr,'',true);
+        $res = $this->query($queryString,true);
 
         if($res){
-            $this->result = mysqli_fetch_all($res,$STORE);
+            $this->result = mysqli_fetch_all($res,MYSQLI_ASSOC);
         }
 
         $this->total = $this->affectedRows();
 
-        $this->queryDebug = ['string' => $qryStr, 'value' => NULL, 'method' => (isset($qryArray['method']) ? $qryArray['method'] : $STORE)];
+        $this->queryDebug = ['string' => $queryString , 'affectedRows' => $this->total];
 
         return $this;
     }
@@ -247,187 +253,100 @@ class Mysqli implements DbInterfaces
     /**
      * 插入数据
      * @param array $dataArray
-     * @param array $unique
-     * @return array
+     * @return bool
      */
-    public function insert($dataArray = [], $unique = []){
-        $fields = [];
-        $executeArray = [];
-        $duplicate = false;
-        $values = [];
-
-        foreach($dataArray as $key=>$val){
-            $fields[] = "`{$key}`";
-            $values[] = "'{$val}'";
-        }
-
-        $rawFieldsStr = implode(',', $fields);
-        $valuesStr = implode(',',$values);
-
-        if( count($unique) > 0 ){
-            $condition = array();
-            foreach($unique as $fieldName){
-                $condition[] = $fieldName." = '".$dataArray[$fieldName]."' ";
+    public function insert($dataArray = [])
+    {
+        if(is_array($dataArray) && count($dataArray) > 0){
+            $v_key = '';$v_value = '';
+            foreach($dataArray as $key=>$value){
+                $v_key .= '`'.$key . '`,';
+                $v_value .= is_int($value) ? $value . ',' : "'{$value}',";
             }
+            $v_key = rtrim($v_key,'.,');$v_value = rtrim($v_value,'.,');
 
-            $cQryStr = "SELECT ".$unique[0]." FROM ".$this->tableName." WHERE ".implode('AND ',$condition);
-            $cQry = $this->query($cQryStr);
+            $queryString = 'INSERT INTO `'.$this->tableName.'` ('.$v_key.') VALUES('.$v_value.');';
 
-            if( $this->affectedRows() > 0 ) $duplicate = true;
-            else $duplicate = false;
+            $res = $this->query($queryString,true);
+
+            $this->queryDebug = ['string' => $queryString, 'value' => $value , 'insertedid' => $this->insert_id()];
+
+            return $res === false ? false : $this->queryDebug['insertedid'];
         }
-
-        $affectedRow = 0;
-        $lastInsertedId = 0;
-
-        if(!$duplicate) {
-            $qryStr = 'INSERT INTO '.$this->tableName.' ('.$rawFieldsStr.') VALUES('.$valuesStr.')';
-
-            $this->query($qryStr);
-
-            $affectedRow = $this->affectedRows();
-
-            $lastInsertedId = $this->insert_id();
-
-            $this->queryDebug = ['string' => $qryStr, 'value' => $valuesStr, 'method' => false];
-        }
-
-        return [
-            'affected_row' => $affectedRow,
-            'inserted_id' => $lastInsertedId,
-            'is_duplicate' => (bool) $duplicate
-        ];
+        return false;
     }
 
     /**
      * 修改数据
      * @param array $dataArray
-     * @param $where
-     * @param array $unique
-     * @return array
+     * @param string $where
+     * @return bool
      */
-    public function update($dataArray = [], $where, $unique = []){
-        $tableName = $this->tableName;
-
-        $fields = [];
-
-        foreach($dataArray as $key=>$val){
-            $fields[] = "`{$key}` = '{$val}'";
-        }
-
-        $fields_str = implode(', ',$fields);
-
-        if( count($unique) > 0 ){
-            $condition = [];
-
-            foreach($unique as $fieldName){
-                $condition[] = $fieldName." = '".$dataArray[$fieldName]."' ";
+    public function update($dataArray = [], $where='')
+    {
+        if(is_array($dataArray) && count($dataArray) > 0){
+            $updata = '';
+            foreach($dataArray as $key=>$value){
+                $value = is_int($value) ? $value : "'{$value}'";
+                $updata .= "`$key`={$value},";
             }
+            if(!empty($where)) $where = $this->structureWhere($where);
+            $queryString = 'UPDATE '.$this->tableName.' SET '.rtrim($updata,'.,').$where;
 
-            $extendedCondition = [];
+            $res = $this->query($queryString,true);
 
-            if( is_array($where) && count($where) > 0 ){
-                foreach($where as $whereKey=>$whereVal){
-                    $extendedCondition[] = $whereKey." != '".$whereVal."' ";
-                }
-            }
+            $this->total = $this->affectedRows();
 
-            $cQryStr = "SELECT ".$unique[0]." FROM ".$tableName." WHERE ".implode('AND ',$condition);
-            if( count($extendedCondition) > 0 ) $cQryStr .= "AND ".implode('AND ', $extendedCondition);
+            $this->queryDebug = ['string' => $queryString, 'update' => $updata , 'affectedRows' => $this->total];
 
-            $cQry = $this->query($cQryStr);
-
-            if( $this->affectedRows() > 0 ) $duplicate = true;
-            else $duplicate = false;
+            return $res === false ? false : $this->total;
         }
-        else {
-            $duplicate = false;
-        }
-
-        $affectedRow = 0;
-
-        if(!$duplicate && !empty($where)) {
-
-            if(is_array($where)) {
-                $affectedTo = [];
-
-                foreach($where as $key=>$val){
-                    if(is_array($val) && count($val) > 1) {
-                        if(trim(strtolower($val[0])) == 'in'){
-                            $affectedTo[] = $key." in($val[1]) ";
-                        }else{
-                            $affectedTo[] = $key." {$val[0]} '".$val[1]."'";
-                        }
-                    }else {
-                        $affectedTo[] = $key." = '".$val."'";
-                    }
-                }
-
-                $whereCond = ' WHERE '.implode(" AND ", $affectedTo);
-            }
-            else {
-                $whereCond = ' WHERE '.$where;
-            }
-
-            $qryStr = 'UPDATE '.$tableName.' SET '.$fields_str.$whereCond;
-
-            $this->query($qryStr);
-
-            $affectedRow = $this->affectedRows();
-
-            $this->queryDebug = ['string' => $qryStr, 'value' => $fields_str, 'method' => false];
-        }
-        else {
-            $this->queryDebug = ['string' => $cQryStr, 'value' => NULL];
-        }
-
-        return [
-            'affected_row' => $affectedRow,
-            'is_duplicate' => (bool) $duplicate
-        ];
+        return false;
     }
 
     /**
      * 删除数据
-     * @param $where
-     * @return array
+     * @param string $where
+     * @return bool
      */
-    public function delete($where){
-        $tableName = $this->tableName;
+    public function delete($where='')
+    {
+        if(!empty($where)) $where = $this->structureWhere($where);
 
-        $affectedRow = 0;
-        if($where!=NULL || (is_array($where) && count($where)) > 0 ){
-            if(is_array($where)) {
-                $affectedTo = array();
-                foreach($where as $key=>$val){
-                    if(is_array($val) && count($val) > 1) {
-                        if(trim(strtolower($val[0])) == 'in'){
-                            $affectedTo[] = $key." in($val[1]) ";
-                        }else{
-                            $affectedTo[] = $key." {$val[0]} '".$val[1]."'";
-                        }
-                    }else {
-                        $affectedTo[] = $key." = '".$val."'";
+        $queryString = 'DELETE FROM '.$this->tableName.$where;
+
+        $res = $this->query($queryString,true);
+
+        $this->total = $this->affectedRows();
+
+        $this->queryDebug = ['string' => $queryString, 'affectedRows' => $this->total];
+
+        return $res === false ? false : $this->total;
+    }
+
+    /**
+     * 条件构造
+     * @param array $whereData
+     */
+    private function structureWhere($whereData = [])
+    {
+        $where = ' WHERE ';
+        if(is_array($whereData)){
+            foreach($whereData as $key=>$value){
+                if(is_array($value) && count($value) > 1){
+                    if(strtolower($value[0]) == 'in'){
+                        $where .= $key . 'IN('.$value[1].') AND';
+                    }else{
+                        $value[1] = is_numeric($value[1]) ? $value[1] : "'" . $value[1] . "'";
+                        $where .= $key . $value[0] . $value[1] . ' AND';
                     }
+                }else{
+                    $where .= $key . '=' . $value . ' AND';
                 }
-                $whereCond = 'WHERE '.implode(" AND ", $affectedTo);
             }
-            else {
-                $whereCond = 'WHERE '.$where;
-            }
-
-            $qryStr = 'DELETE FROM '.$tableName.' '.$whereCond;
-
-            $this->query($qryStr);
-
-            $affectedRow = $this->affectedRows();
-
-            $this->queryDebug = ['string' => $qryStr, 'value' => NULL, 'method' => false];
+            return rtrim($where,'. AND');
         }
-
-        return [
-            'affected_row' => $affectedRow
-        ];
+        return $where.$whereData;
     }
 
 }
