@@ -214,8 +214,8 @@ class Mysqli implements DbInterfaces
 
         if(isset($qryArray['field'])){
             $field = is_array($qryArray['field']) ? implode(',',$qryArray['field']) : $qryArray['field'];
-            if(empty($field)) $field = ' * ';
         }
+        if(empty($field)) $field = ' * ';
 
         if(isset($qryArray['join'])){
             $join .= ' '.is_array($qryArray['join']) ? implode(' ',$qryArray['join']) : $qryArray['join'];
