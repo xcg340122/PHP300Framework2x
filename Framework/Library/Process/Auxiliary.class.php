@@ -222,6 +222,6 @@ class Auxiliary
      */
     static public function getPublic()
     {
-        return rtrim(str_replace('\\','/',dirname($_SERVER['SCRIPT_NAME'])).'Public/');
+        return rtrim(str_replace('\\','/',dirname($_SERVER['SCRIPT_NAME'])).'/Public/');
     }
 }
