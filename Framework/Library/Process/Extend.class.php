@@ -90,6 +90,7 @@ class Extend
         if(file_exists($infoPath)){
             return include $infoPath;
         }
+        return false;
     }
 
     /**
@@ -112,17 +113,18 @@ class Extend
             } else {
                 $error = [
                     'file' => $zipfile,
-                    'message' => "'{$zipfile}' read file failure!"
+                    'message' => "'{$zipfile}' 读取文件失败!"
                 ];
                 \Framework\App::$app->get('LogicExceptions')->readErrorFile($error);
             }
         }else{
             $error = [
                 'file' => $zipfile,
-                'message' => "You need to start the PHP ZipArchive extension first!"
+                'message' => "你需要先启动 PHP-ZipArchive 扩展!"
             ];
             \Framework\App::$app->get('LogicExceptions')->readErrorFile($error);
         }
+        return true;
     }
 
     /**

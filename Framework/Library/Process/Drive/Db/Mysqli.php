@@ -74,8 +74,7 @@ class Mysqli implements DbInterfaces
         } else {
             $error = [
                 'file' => __FILE__,
-                'message' => 'Mysql Host[ ' . $config['host'] . ' ] :: ' . Auxiliary::toUTF8(mysqli_connect_error()),
-                'line' => 69,
+                'message' => 'Mysql Host[ ' . $config['host'] . ' ] :: ' . Auxiliary::toUTF8(mysqli_connect_error())
             ];
             \Framework\App::$app->get('LogicExceptions')->readErrorFile($error);
         }
@@ -195,12 +194,18 @@ class Mysqli implements DbInterfaces
      * @param $tabName
      * @return $this
      */
-    public function table($tabName)
+    public function table($tabName='')
     {
         if (!empty($tabName)) {
             $this->tableName = $tabName;
+            return $this;
+        }else{
+            $error = [
+                'file' => __FILE__,
+                'message' => 'Need to fill in Table Value!',
+            ];
+            \Framework\App::$app->get('LogicExceptions')->readErrorFile($error);
         }
-        return $this;
     }
 
     /**
@@ -334,17 +339,25 @@ class Mysqli implements DbInterfaces
         if(is_array($whereData)){
             foreach($whereData as $key=>$value){
                 if(is_array($value) && count($value) > 1){
-                    if(strtolower($value[0]) == 'in'){
-                        $where .= $key . 'IN('.$value[1].') AND';
-                    }else{
-                        $value[1] = is_numeric($value[1]) ? $value[1] : "'" . $value[1] . "'";
-                        $where .= $key . $value[0] . $value[1] . ' AND';
+                    switch(strtolower($value[0]))
+                    {
+                        case 'in':
+                            $where .= $key . 'IN('.$value[1].') AND ';
+                            break;
+                        case 'string':
+                            $where .= $key . $value[1] . ' AND ';
+                            break;
+                        default:
+                            $value[1] = is_numeric($value[1]) ? $value[1] : "'" . $value[1] . "'";
+                            $where .= $key . ' ' . $value[0] .' '. $value[1] . ' AND ';
+                            break;
                     }
                 }else{
-                    $where .= $key . '=' . $value . ' AND';
+                    $value = is_numeric($value) ? $value : "'" . $value . "'";
+                    $where .= $key . '=' . $value . ' AND ';
                 }
             }
-            return rtrim($where,'. AND');
+            return rtrim($where,'. AND ');
         }
         return $where.$whereData;
     }

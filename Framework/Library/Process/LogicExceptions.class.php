@@ -14,7 +14,7 @@ class LogicExceptions implements LogicExceptionsInterfaces
      * 配置信息
      * @var array
      */
-    private $Config;
+    static public $Config;
 
     /**
      * 构造函数,挂载中断回调
@@ -24,7 +24,7 @@ class LogicExceptions implements LogicExceptionsInterfaces
     {
         error_reporting(0);
         register_shutdown_function([&$this,'Mount']);
-        $this->Config = \Framework\App::$app->get('Config')->get('frame');
+        self::$Config = \Framework\App::$app->get('Config')->get('frame');
     }
 
     /**
@@ -54,21 +54,22 @@ class LogicExceptions implements LogicExceptionsInterfaces
             ];
             $error['type'] =  (!empty($errorType[$error['type']]))?($errorType[$error['type']]):('Unknown');
             $error['message'] = Auxiliary::toUTF8($error['message']);
-            if(isset($this->Config['log']['error_switch']) && $this->Config['log']['error_switch']===true){
-                if($this->judgeLevel($error['type'],$this->Config['log']['error_level'])){
+            if(isset(self::$Config['log']['error_switch']) && self::$Config['log']['error_switch']===true){
+                if($this->judgeLevel($error['type'],self::$Config['log']['error_level'])){
                     $log = 'type: ';
                     $log .= $error['type'];
                     $log .= "\r\n".'message: '.$error['message']."\r\n";
                     $log .= 'file: '.$error['file']."\r\n";
                     $log .= 'line: '.$error['line'];
+
                     $Project = $this->getProjectName($error['file']);
                     if($Project){
                         \Framework\App::$app->get('Log')->Record(Running::$framworkPath .'/Project/Runtime/'.$Project.'/Log','Error',$log);
                     }
                 }
             }
-            if(isset($this->Config['Exception']['display_switch']) && $this->Config['Exception']['display_switch']===true){
-                if($this->judgeLevel($error['type'],$this->Config['Exception']['display_level'])) $this->readErrorFile($error);
+            if(isset(self::$Config['Exception']['display_switch']) && self::$Config['Exception']['display_switch']===true){
+                if($this->judgeLevel($error['type'],self::$Config['Exception']['display_level'])) $this->readErrorFile($error);
             }
         }
     }
@@ -121,14 +122,17 @@ class LogicExceptions implements LogicExceptionsInterfaces
             $code = '';
             foreach($content as $key=>$value){
                 if($value[0] == $line){
-                    $value[0] = '>>';
+                    $value[0] = '<font color="red">>></font>';
                 }
                 $code .= $value[0] . ' '. $value[1];
             }
+            $error['code'] = $code;
         }
-        $staticPath = \Framework\App::$app->corePath . 'Library/Process/Tpl/';
-        include_once \Framework\App::$app->corePath . 'Library/Process/Tpl/error.tpl';
-        exit();
+        $View = View('',\Framework\App::$app->corePath . 'Library/Process/Tpl/error.tpl');
+        $View->Path = Auxiliary::getPublic();
+        $View->Error = $error;
+        $View->Server = $_SERVER;
+        die($View->get());
     }
 
     /**
@@ -150,5 +154,4 @@ class LogicExceptions implements LogicExceptionsInterfaces
         }
         return false;
     }
-
 }

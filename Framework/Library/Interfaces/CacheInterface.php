@@ -2,6 +2,11 @@
 
 namespace Framework\Library\Interfaces;
 
+/**
+ * 缓存接口
+ * Interface CacheInterface
+ * @package Framework\Library\Interfaces
+ */
 interface CacheInterface{
 
     /**

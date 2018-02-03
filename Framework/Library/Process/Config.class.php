@@ -49,7 +49,7 @@ class Config implements ConfigInterfaces
      * 读取配置文件
      * @param string $filePath
      */
-    private function read($configName,$filePath = '')
+    private function read($configName='',$filePath = '')
     {
         if(is_file($filePath)) $this->Config[$configName] = include_once $filePath;
     }
@@ -64,6 +64,7 @@ class Config implements ConfigInterfaces
         if(count($this->Config) > 0 && !empty($keys) && !empty($this->Config[$keys])){
             return $this->Config[$keys];
         }
+        return false;
     }
 
     /**

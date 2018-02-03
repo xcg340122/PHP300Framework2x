@@ -200,11 +200,18 @@ class Pdo implements DbInterfaces
      * @param $tableName
      * @return $this
      */
-    public function table($tableName)
+    public function table($tableName='')
     {
-        $this->tableName = $tableName;
-
-        return $this;
+        if (!empty($tabName)) {
+            $this->tableName = $tabName;
+            return $this;
+        }else{
+            $error = [
+                'file' => __FILE__,
+                'message' => 'Need to fill in Table Value!',
+            ];
+            \Framework\App::$app->get('LogicExceptions')->readErrorFile($error);
+        }
     }
 
 
@@ -372,17 +379,25 @@ class Pdo implements DbInterfaces
         if(is_array($whereData)){
             foreach($whereData as $key=>$value){
                 if(is_array($value) && count($value) > 1){
-                    if(strtolower($value[0]) == 'in'){
-                        $where .= $key . 'IN('.$value[1].') AND';
-                    }else{
-                        $value[1] = is_numeric($value[1]) ? $value[1] : "'" . $value[1] . "'";
-                        $where .= $key . $value[0] . $value[1] . ' AND';
+                    switch(strtolower($value[0]))
+                    {
+                        case 'in':
+                            $where .= $key . 'IN('.$value[1].') AND ';
+                            break;
+                        case 'string':
+                            $where .= $key . $value[1] . ' AND ';
+                            break;
+                        default:
+                            $value[1] = is_numeric($value[1]) ? $value[1] : "'" . $value[1] . "'";
+                            $where .= $key . ' ' . $value[0] .' '. $value[1] . ' AND ';
+                            break;
                     }
                 }else{
-                    $where .= $key . '=' . $value . ' AND';
+                    $value = is_numeric($value) ? $value : "'" . $value . "'";
+                    $where .= $key . '=' . $value . ' AND ';
                 }
             }
-            return rtrim($where,'. AND');
+            return rtrim($where,'. AND ');
         }
         return $where.$whereData;
     }

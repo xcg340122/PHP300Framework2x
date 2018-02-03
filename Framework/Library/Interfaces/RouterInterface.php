@@ -4,8 +4,9 @@ namespace Framework\Library\Interfaces;
 
 /**
  * 路由接口
+ * Interface RouterInterface
+ * @package Framework\Library\Interfaces
  */
-
 interface  RouterInterface
 {
     /**

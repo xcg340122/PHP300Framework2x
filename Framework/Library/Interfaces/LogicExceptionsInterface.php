@@ -4,8 +4,9 @@ namespace Framework\Library\Interfaces;
 
 /**
  * 异常处理接口
+ * Interface LogicExceptionsInterface
+ * @package Framework\Library\Interfaces
  */
-
 interface  LogicExceptionsInterface
 {
     /**

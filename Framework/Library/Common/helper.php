@@ -2,9 +2,9 @@
 
 /**
  * 自定义dump
- * @param $vars
- * @param string $label
- * @param bool $return
+ * @param string $vars 打印的变量
+ * @param string $label 追加标签
+ * @param bool $return 是否直接返回
  * @return null|string
  */
 function dump($vars, $label = '', $return = false)
@@ -26,7 +26,7 @@ function dump($vars, $label = '', $return = false)
 
 /**
  * 数据模型操作
- * @param null $config
+ * @param null $config 操作数据的配置名称
  * @return mixed
  */
 function Db($config = null)
@@ -44,7 +44,19 @@ function Db($config = null)
 }
 
 /**
+ * 读取配置信息
+ * @param string $configName 配置名称
+ * @return bool
+ */
+function Config($configName)
+{
+    if(empty($configName)) return false;
+    return \Framework\App::$app->get('Config')->get($configName);
+}
+
+/**
  * 缓存模型操作
+ * @return mixed
  */
 function Cache()
 {
@@ -53,9 +65,37 @@ function Cache()
 }
 
 /**
+ * 渲染视图信息
+ * @param string $fileName 模板文件名
+ * @param string $dir 其他模板文件
+ * @return mixed
+ */
+function View($fileName='',$dir='')
+{
+    $Object = \Framework\App::$app->get('View')->init();
+    if(empty($fileName) && empty($dir)) return $Object;
+    if(empty($dir) && !empty($fileName)){
+        $ViewPath = \Framework\Library\Process\Running::$framworkPath . 'Project/View';
+        $fileName = $ViewPath.'/'.$fileName . '.html';
+    }else{
+        $fileName = $dir;
+    }
+    if(!file_exists($fileName)){
+        $fileName = str_replace('\\','/',$fileName);
+        $error = [
+            'file' => __FILE__,
+            'message' => "[$fileName] 请检查您的模板是否存在!",
+        ];
+        \Framework\App::$app->get('LogicExceptions')->readErrorFile($error);
+    }
+    $Object->set($fileName);
+    return $Object;
+}
+
+/**
  * 获取GET值
- * @param $value
- * @return string
+ * @param string $value GET的键名称
+ * @return string 为空时返回
  */
 function get($value,$null='')
 {
@@ -64,8 +104,8 @@ function get($value,$null='')
 
 /**
  * 获取POST值
- * @param $value
- * @return string
+ * @param string $value POST的键名称
+ * @return string 为空时返回
  */
 function post($value,$null='')
 {
@@ -74,8 +114,8 @@ function post($value,$null='')
 
 /**
  * 动态载入扩展
- * @param $name
- * @param int $type
+ * @param string $name 扩展文件名称(可传递数组)
+ * @param int $type 是否为包(0=扩展文件,1=扩展包)
  * @return bool
  */
 function extend($name,$type=0)

@@ -75,7 +75,7 @@ class Visit implements VisitInterfaces
         if(empty(self::$param['Function'])){
             $error = [
                 'file' => Structure::$endfile,
-                'message' => 'Passed the empty method!'
+                'message' => '无法执行空方法!'
             ];
             \Framework\App::$app->get('LogicExceptions')->readErrorFile($error);
         }

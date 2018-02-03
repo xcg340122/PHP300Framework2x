@@ -28,7 +28,10 @@ class Running
      */
     static public $framworkPath;
 
-
+    /**
+     * 运行构造
+     * Running constructor.
+     */
     public function __construct()
     {
         self::$framworkPath = str_replace('Framework/','',\Framework\App::$app->corePath);

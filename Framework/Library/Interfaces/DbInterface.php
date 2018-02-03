@@ -4,7 +4,8 @@ namespace Framework\Library\Interfaces;
 
 /**
  * 数据基础模型接口
- * Class Db
+ * Interface DbInterface
+ * @package Framework\Library\Interfaces
  */
 interface DbInterface{
 

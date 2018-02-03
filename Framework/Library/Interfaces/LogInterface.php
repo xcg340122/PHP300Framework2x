@@ -4,8 +4,9 @@ namespace Framework\Library\Interfaces;
 
 /**
  * 日志接口
+ * Interface LogInterface
+ * @package Framework\Library\Interfaces
  */
-
 interface  LogInterface
 {
     /**

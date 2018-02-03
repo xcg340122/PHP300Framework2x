@@ -9,7 +9,6 @@ namespace Framework\Library\Process;
  */
 class Auxiliary
 {
-
     /**
      * HTTP状态码
      * @param $code
@@ -106,13 +105,13 @@ class Auxiliary
     static public function redirect($url)
     {
         header("Location: {$url}");
-        exit();
+        die();
     }
 
     /**
      * 生成URL
-     * @param 地址 $name
-     * @param 参数 $parm
+     * @param string $name 地址
+     * @param string $parm 参数
      *
      * @return String
      */
@@ -134,6 +133,7 @@ class Auxiliary
             }
             return $Url;
         }
+        return false;
     }
 
     /**
@@ -150,6 +150,7 @@ class Auxiliary
             }
             return $string;
         }
+        return false;
     }
 
     /**
@@ -215,5 +216,12 @@ class Auxiliary
         return false;
     }
 
-
+    /**
+     * 获取Public路径
+     * @return string
+     */
+    static public function getPublic()
+    {
+        return rtrim(str_replace('\\','/',dirname($_SERVER['SCRIPT_NAME'])).'Public/');
+    }
 }

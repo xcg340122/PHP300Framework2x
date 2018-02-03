@@ -28,11 +28,12 @@ class Router implements RouterInterfaces
      * Router constructor.
      */
     public function __construct()
-    {
+    {;
         self::$requestUrl = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '';
         $this->RouteConfig = \Framework\App::$app->get('Config')->get('Router');
-        $this->Matching();
+
         $this->Route();
+        $this->Matching();
     }
 
     /**
@@ -46,7 +47,6 @@ class Router implements RouterInterfaces
         } else {
             preg_match_all('/^\/(.*)/', self::$requestUrl, $Url);
         }
-
         if(empty($Url[1][0])) return;
 
         $Url = $Url[1][0];
@@ -62,21 +62,16 @@ class Router implements RouterInterfaces
      */
     private function Matching()
     {
-        $Url = self::$requestUrl;
-        if(isset($this->RouteConfig['useRule']) && is_array($this->RouteConfig['useRule'])){
+        if(self::$requestUrl == ''){
+            $Url = '/';
+        }else{
+            $Url = '/' . Visit::$param['Project'] . '/' . Visit::$param['Controller'] . '/' . Visit::$param['Function'];
+        }
+        if(is_array($this->RouteConfig) && count($this->RouteConfig) > 0 && isset($this->RouteConfig[$Url])){
 
-            foreach($this->RouteConfig['useRule'] as $key=>$value){
-
-                $key = $this->replaceMatch($key,$this->RouteConfig['Acter']);
-                
-                preg_match($key,$Url, $subject);
-                if(count($subject) > 1){
-                    $Url = $this->replaceMatch($value,$subject);
-                    if(!empty($Url)){
-                        self::$requestUrl = $Url;
-                    }
-                    break;
-                }
+            $function = $this->RouteConfig[$Url];
+            if(gettype($function) == 'object'){
+                die($function());
             }
         }
     }

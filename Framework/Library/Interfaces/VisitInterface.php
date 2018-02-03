@@ -4,6 +4,8 @@ namespace Framework\Library\Interfaces;
 
 /**
  * 访问处理接口
+ * Interface VisitInterface
+ * @package Framework\Library\Interfaces
  */
 
 interface  VisitInterface

@@ -118,14 +118,13 @@ class App{
 
         $app = new $object();
 
-        if(method_exists($app,$function))
-        {
+        if(method_exists($app,$function)) {
             $this->get('ReturnHandle')->Output($app->$function());
 
         }else{
             $error = [
                 'file' => Structure::$endfile,
-                'message' => "'{$function}' Method does not exist!"
+                'message' => "[{$function}] 方法不存在!"
             ];
             $this->get('LogicExceptions')->readErrorFile($error);
         }

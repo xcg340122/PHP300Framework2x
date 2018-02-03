@@ -21,12 +21,6 @@ class Structure {
 	 */
 	private $extend;
 
-	/**
-	 * 加载列表
-	 * @var array
-	 */
-	public $param = [];
-
     /**
      * 最后读入的文件
      * @var string
@@ -46,7 +40,7 @@ class Structure {
 
     /**
 	 * 自动加载实现
-	 * @param 加载对象 $class
+	 * @param string $class 加载对象
 	 */
 	public function __autoload($class)
     {
@@ -55,7 +49,6 @@ class Structure {
         $framworkPath = $strpos ? \Framework\App::$app->corePath : Running::$framworkPath;
         $this->extend = $strpos ? '.php' : '.class.php';
 		$fileObj = strpos($class,'App/')!==false ? $framworkPath . str_replace('App/','Project/',$class) . $this->extend :  $framworkPath . str_replace('Framework/','',$class) . $this->extend;
-
 		if(file_exists($fileObj)){
             self::$endfile = $fileObj;
 			include_once $fileObj;
@@ -66,15 +59,6 @@ class Structure {
             ];
             \Framework\App::$app->get('LogicExceptions')->readErrorFile($error);
         }
-	}
-
-	/**
-	 * 设置加载
-	 * @param $param
-	 */
-	public function put($param)
-    {
-		$this->param[] = $param;
 	}
 
     /**

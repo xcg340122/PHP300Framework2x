@@ -18,13 +18,25 @@ class Log implements LogInterfaces
     public $extend = '.log';
 
     /**
-     * 写出动作
+     * 写出动作(划分日期和大小)
      * @param $fileName
      * @param $Content
      */
-    private function Write($fileName,$Content)
+    private function Write($fileName,$Content,$count=0)
     {
-        file_put_contents($fileName . $this->extend,$Content,FILE_APPEND);
+        $fileLine = $fileName.'_' . date('Y-m-d',time()) . '('.$count.')';
+        $fileNames = $fileLine . $this->extend;
+        if(file_exists($fileNames)){
+            $size = number_format(filesize($fileNames) /1024/1024,3);
+            if($size > 5){
+                $number = intval(substr($fileLine, -2,1)) + 1;
+                $this->Write($fileName,$Content,$number);
+            }else{
+                file_put_contents($fileNames,$Content,FILE_APPEND);
+            }
+        }else{
+            file_put_contents($fileNames,$Content,FILE_APPEND);
+        }
     }
 
     /**
@@ -40,7 +52,7 @@ class Log implements LogInterfaces
             if(!file_exists($LogPath)){
                 Structure::createDir($LogPath);
             }
-            $Log = "[".date('Y-m-d H:i:s')."]\r\n$Log\r\n--------------------\r\n\r\n ";
+            $Log = "[".date('Y-m-d H:i:s')."]\r\n$Log\r\n------------------\r\n\r\n ";
             $this->Write($LogPath.'/'.$fileName,$Log);
         }
     }

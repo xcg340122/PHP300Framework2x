@@ -3,8 +3,9 @@
 namespace Framework\Library\Interfaces;
 
 /**
- * 数据基础模型接口
- * Class Db
+ * 配置处理接口
+ * Interface ConfigInterface
+ * @package Framework\Library\Interfaces
  */
 interface ConfigInterface{
 

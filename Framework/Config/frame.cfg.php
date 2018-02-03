@@ -66,6 +66,29 @@ return [
          * 静态扩展名
          */
         'extend' => '.html'
+    ],
+
+    'View' => [
+
+        /**
+         * 模板左标记
+         */
+        'left_delimiter' => '{',
+
+        /**
+         * 模板右标记
+         */
+        'right_delimiter' => '}',
+
+        /**
+         * 是否启用缓存
+         */
+        'is_cache' => true,
+
+        /**
+         * 缓存周期
+         */
+        'cache_lifetime' => '0',
     ]
 
 ];
