@@ -224,6 +224,7 @@ class Auxiliary
     {
         $scriptName = str_replace('\\','/',dirname($_SERVER['SCRIPT_NAME']));
         if(empty($scriptName)) $scriptName = '/';
+        if(substr($scriptName, -1) != '/') $scriptName .= '/';
         return rtrim($scriptName).'Public/';
     }
 }
