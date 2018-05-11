@@ -131,6 +131,8 @@ class LogicExceptions implements LogicExceptionsInterfaces
         $View = View('',\Framework\App::$app->corePath . 'Library/Process/Tpl/error.tpl');
         $View->Path = Auxiliary::getPublic();
         $View->Error = $error;
+        $View->getView()->left_delimiter = '{';
+        $View->getView()->right_delimiter = '}';
         $View->Server = $_SERVER;
         die($View->get());
     }

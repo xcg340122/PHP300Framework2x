@@ -28,7 +28,7 @@ class Router implements RouterInterfaces
      * Router constructor.
      */
     public function __construct()
-    {;
+    {
         self::$requestUrl = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '';
         $this->RouteConfig = \Framework\App::$app->get('Config')->get('Router');
 
@@ -53,6 +53,15 @@ class Router implements RouterInterfaces
 
         $Url = explode('/', $Url);
 
+        if(count($Url) > 0){
+
+            $extend = explode('.',end($Url));
+
+            $ResourcesList = ['js','css','png','jpg','jpeg','bmp','ico','txt','gif','zip','rar','7z','exe','msi','wav','mp3','avi','flv','md','json','ini'];
+            if(count($extend) > 1 && in_array(end($extend),$ResourcesList)){
+                return;
+            }
+        }
         \Framework\App::$app->get('Visit')->bind($Url);
     }
 
@@ -74,22 +83,6 @@ class Router implements RouterInterfaces
                 die($function());
             }
         }
-    }
-
-    /**
-     * 字序替换
-     * @param $keys
-     * @param $array
-     * @return mixed
-     */
-    private function replaceMatch($keys,$array)
-    {
-        if(!empty($keys) && is_array($array)){
-            foreach($array as $key=>$value){
-                $keys = str_replace('{'.$key.'}',$value,$keys);
-            }
-        }
-        return $keys;
     }
 
 }

@@ -98,18 +98,19 @@ class App{
 		return $this->hook[$Name];
 	}
 
-	/**
-	 * 处理应用
-	 */
+    /**
+     * 处理应用
+     * @return $this
+     */
 	public function __invoke()
     {
 		$this->inBatch(['Visit','ReturnHandle','Db','Extend']);
 		return $this;
 	}
 
-	/**
-	 * 运行应用
-	 */
+    /**
+     * 运行应用
+     */
 	public function run()
     {
         $object = Visit::mergeParam();

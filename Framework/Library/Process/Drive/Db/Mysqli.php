@@ -224,6 +224,9 @@ class Mysqli implements DbInterfaces
 
         if(isset($qryArray['join'])){
             $join .= ' '.is_array($qryArray['join']) ? implode(' ',$qryArray['join']) : $qryArray['join'];
+            if(empty($join)){
+                $join = ' '.$join;
+            }
         }
         if(isset($qryArray['where'])){
             $where = $this->structureWhere($qryArray['where']);
@@ -339,10 +342,11 @@ class Mysqli implements DbInterfaces
         if(is_array($whereData)){
             foreach($whereData as $key=>$value){
                 if(is_array($value) && count($value) > 1){
+                    $value[1] = mysqli_real_escape_string($this->link,$value[1]);
                     switch(strtolower($value[0]))
                     {
                         case 'in':
-                            $where .= $key . 'IN('.$value[1].') AND ';
+                            $where .= $key . ' IN('.$value[1].') AND ';
                             break;
                         case 'string':
                             $where .= $key . $value[1] . ' AND ';
@@ -353,6 +357,7 @@ class Mysqli implements DbInterfaces
                             break;
                     }
                 }else{
+                    $value = mysqli_real_escape_string($this->link,$value);
                     $value = is_numeric($value) ? $value : "'" . $value . "'";
                     $where .= $key . '=' . $value . ' AND ';
                 }

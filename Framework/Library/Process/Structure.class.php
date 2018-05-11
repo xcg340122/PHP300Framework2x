@@ -69,8 +69,9 @@ class Structure {
         $getPath = Running::$framworkPath .'/Project/';
         $Project = $this->getDir($getPath);
         if(is_array($Project) && count($Project) > 0){
+            $array = ['Runtime','Common','favicon.ico'];
             foreach($Project as $value){
-                if(is_dir($getPath.$value) && $value != 'Runtime' && $value != 'Common'){
+                if(is_dir($getPath.$value) && !in_array($value,$array)){
                     self::$ProjectList[] = $value;
                 }
             }

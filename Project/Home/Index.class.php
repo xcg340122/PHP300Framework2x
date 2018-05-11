@@ -11,9 +11,9 @@ class  Index {
 
         $View->public = Auxiliary::getPublic();
 
-        $View->show  = 'PHP300Framework - 努力向前跑';
+        $View->show  = 'PHP300Framework - 想象无极限';
 
-        $View->version = '2.2.0';
+        $View->version = '2.2.1';
 
         return $View->get();
     }
