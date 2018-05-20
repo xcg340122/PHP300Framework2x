@@ -7,7 +7,8 @@ namespace Framework\Library\Interfaces;
  * Interface DbInterface
  * @package Framework\Library\Interfaces
  */
-interface DbInterface{
+interface DbInterface
+{
 
     /**
      * 获取错误信息
@@ -28,7 +29,7 @@ interface DbInterface{
      * @param $method
      * @return $select
      */
-    public function query($queryString,$select);
+    public function query($queryString, $select);
 
     /**
      * 设置表
@@ -59,7 +60,7 @@ interface DbInterface{
      * @param array $unique
      * @return mixed
      */
-    public function  update($dataArray = [], $where);
+    public function update($dataArray = [], $where);
 
     /**
      * 删除数据

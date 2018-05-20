@@ -4,6 +4,7 @@ namespace Framework\Library\Process\Drive\Db;
 
 use \Framework\Library\Process\Auxiliary;
 use \Framework\Library\Interfaces\DbInterface as DbInterfaces;
+
 /**
  * Mysqli Driver
  * Class Mysqli
@@ -54,7 +55,7 @@ class Mysqli implements DbInterfaces
      */
     public function getError()
     {
-        if(is_resource($this->link)){
+        if (is_resource($this->link)) {
             return mysqli_error($this->link);
         }
         return 'Invalid resources';
@@ -67,9 +68,9 @@ class Mysqli implements DbInterfaces
      */
     public function connect($config = [])
     {
-        $this->link = @mysqli_connect($config['host'], $config['username'], $config['password'], $config['database'],$config['port']);
+        $this->link = @mysqli_connect($config['host'], $config['username'], $config['password'], $config['database'], $config['port']);
         if ($this->link != null) {
-            mysqli_query($this->link, 'set names '.$config['char']);
+            mysqli_query($this->link, 'set names ' . $config['char']);
             return $this->link;
         } else {
             $error = [
@@ -84,7 +85,8 @@ class Mysqli implements DbInterfaces
      * 操作多数据库连接
      * @param $link
      */
-    public function setlink($link){
+    public function setlink($link)
+    {
         $this->link = $link;
         return $this;
     }
@@ -124,14 +126,14 @@ class Mysqli implements DbInterfaces
      * @param string $sql
      * @return mixed
      */
-    public function query($queryString = '',$select=false)
+    public function query($queryString = '', $select = false)
     {
         if ($this->link != null) {
             $this->queryId = mysqli_query($this->link, $queryString);
             $status = $this->queryId !== false ? 'success' : 'error';
-            \Framework\App::$app->get('Log')->Record(\Framework\Library\Process\Running::$framworkPath .'/Project/Runtime/Datebase','sql',"[{$status}] ".$queryString);
-            if ($this->startsWith(strtolower($queryString), "select") && $select===false) {
-                $this->result = mysqli_fetch_all($this->queryId,MYSQLI_ASSOC);
+            \Framework\App::$app->get('Log')->Record(\Framework\Library\Process\Running::$framworkPath . '/Project/Runtime/Datebase', 'sql', "[{$status}] " . $queryString);
+            if ($this->startsWith(strtolower($queryString), "select") && $select === false) {
+                $this->result = mysqli_fetch_all($this->queryId, MYSQLI_ASSOC);
                 return $this;
             }
             return $this->queryId;
@@ -194,12 +196,12 @@ class Mysqli implements DbInterfaces
      * @param $tabName
      * @return $this
      */
-    public function table($tabName='')
+    public function table($tabName = '')
     {
         if (!empty($tabName)) {
             $this->tableName = $tabName;
             return $this;
-        }else{
+        } else {
             $error = [
                 'file' => __FILE__,
                 'message' => 'Need to fill in Table Value!',
@@ -215,45 +217,50 @@ class Mysqli implements DbInterfaces
      */
     public function select($qryArray = [])
     {
-        $field = '';$join='';$where = '';$order='';$group='';$limit='';
+        $field = '';
+        $join = '';
+        $where = '';
+        $order = '';
+        $group = '';
+        $limit = '';
 
-        if(isset($qryArray['field'])){
-            $field = is_array($qryArray['field']) ? implode(',',$qryArray['field']) : $qryArray['field'];
+        if (isset($qryArray['field'])) {
+            $field = is_array($qryArray['field']) ? implode(',', $qryArray['field']) : $qryArray['field'];
         }
-        if(empty($field)) $field = ' * ';
+        if (empty($field)) $field = ' * ';
 
-        if(isset($qryArray['join'])){
-            $join .= ' '.is_array($qryArray['join']) ? implode(' ',$qryArray['join']) : $qryArray['join'];
-            if(empty($join)){
-                $join = ' '.$join;
+        if (isset($qryArray['join'])) {
+            $join .= ' ' . is_array($qryArray['join']) ? implode(' ', $qryArray['join']) : $qryArray['join'];
+            if (empty($join)) {
+                $join = ' ' . $join;
             }
         }
-        if(isset($qryArray['where'])){
+        if (isset($qryArray['where'])) {
             $where = $this->structureWhere($qryArray['where']);
         }
-        if(isset($qryArray['orderby'])){
-            $order = is_array($qryArray['orderby']) ? implode(',',$qryArray['orderby']) : $qryArray['orderby'];
-            $order = ' ORDER BY '.$order;
+        if (isset($qryArray['orderby'])) {
+            $order = is_array($qryArray['orderby']) ? implode(',', $qryArray['orderby']) : $qryArray['orderby'];
+            $order = ' ORDER BY ' . $order;
         }
-        if(isset($qryArray['groupby'])){
-            $group = is_array($qryArray['groupby']) ? implode(',',$qryArray['groupby']) : $qryArray['groupby'];
-            $group = ' GROUP BY '.$group;
+        if (isset($qryArray['groupby'])) {
+            $group = is_array($qryArray['groupby']) ? implode(',', $qryArray['groupby']) : $qryArray['groupby'];
+            $group = ' GROUP BY ' . $group;
         }
-        if(isset($qryArray['limit'])){
-            $limit = is_array($qryArray['limit']) ? implode(',',$qryArray['limit']) : $qryArray['limit'];
-            $limit = ' LIMIT '.$limit;
+        if (isset($qryArray['limit'])) {
+            $limit = is_array($qryArray['limit']) ? implode(',', $qryArray['limit']) : $qryArray['limit'];
+            $limit = ' LIMIT ' . $limit;
         }
-        $queryString = 'SELECT '.$field.' FROM '.$this->tableName.$join.$where.$group.$order.$limit;
+        $queryString = 'SELECT ' . $field . ' FROM ' . $this->tableName . $join . $where . $group . $order . $limit;
 
-        $res = $this->query($queryString,true);
+        $res = $this->query($queryString, true);
 
-        if($res){
-            $this->result = mysqli_fetch_all($res,MYSQLI_ASSOC);
+        if ($res) {
+            $this->result = mysqli_fetch_all($res, MYSQLI_ASSOC);
         }
 
         $this->total = $this->affectedRows();
 
-        $this->queryDebug = ['string' => $queryString , 'affectedRows' => $this->total];
+        $this->queryDebug = ['string' => $queryString, 'affectedRows' => $this->total];
 
         return $this;
     }
@@ -265,23 +272,35 @@ class Mysqli implements DbInterfaces
      */
     public function insert($dataArray = [])
     {
-        if(is_array($dataArray) && count($dataArray) > 0){
-            $v_key = '';$v_value = '';
-            foreach($dataArray as $key=>$value){
-                $v_key .= '`'.$key . '`,';
+        if (is_array($dataArray) && count($dataArray) > 0) {
+            $v_key = '';
+            $v_value = '';
+            foreach ($dataArray as $key => $value) {
+                $v_key .= '`' . $key . '`,';
                 $v_value .= is_int($value) ? $value . ',' : "'{$value}',";
             }
-            $v_key = rtrim($v_key,'.,');$v_value = rtrim($v_value,'.,');
+            $v_key = rtrim($v_key, '.,');
+            $v_value = rtrim($v_value, '.,');
 
-            $queryString = 'INSERT INTO `'.$this->tableName.'` ('.$v_key.') VALUES('.$v_value.');';
+            $queryString = 'INSERT INTO `' . $this->tableName . '` (' . $v_key . ') VALUES(' . $v_value . ');';
 
-            $res = $this->query($queryString,true);
+            $res = $this->query($queryString, true);
 
-            $this->queryDebug = ['string' => $queryString, 'value' => $value , 'insertedid' => $this->insert_id()];
+            $this->queryDebug = ['string' => $queryString, 'value' => $value, 'insertedid' => $this->insert_id()];
 
             return $res === false ? false : $this->queryDebug['insertedid'];
         }
         return false;
+    }
+
+    /**
+     * 插入数据(别名)
+     * @param array $dataArray
+     * @return bool
+     */
+    public function add($dataArray = [])
+    {
+        return $this->insert($dataArray);
     }
 
     /**
@@ -290,22 +309,22 @@ class Mysqli implements DbInterfaces
      * @param string $where
      * @return bool
      */
-    public function update($dataArray = [], $where='')
+    public function update($dataArray = [], $where = '')
     {
-        if(is_array($dataArray) && count($dataArray) > 0){
+        if (is_array($dataArray) && count($dataArray) > 0) {
             $updata = '';
-            foreach($dataArray as $key=>$value){
+            foreach ($dataArray as $key => $value) {
                 $value = is_int($value) ? $value : "'{$value}'";
                 $updata .= "`$key`={$value},";
             }
-            if(!empty($where)) $where = $this->structureWhere($where);
-            $queryString = 'UPDATE '.$this->tableName.' SET '.rtrim($updata,'.,').$where;
+            if (!empty($where)) $where = $this->structureWhere($where);
+            $queryString = 'UPDATE ' . $this->tableName . ' SET ' . rtrim($updata, '.,') . $where;
 
-            $res = $this->query($queryString,true);
+            $res = $this->query($queryString, true);
 
             $this->total = $this->affectedRows();
 
-            $this->queryDebug = ['string' => $queryString, 'update' => $updata , 'affectedRows' => $this->total];
+            $this->queryDebug = ['string' => $queryString, 'update' => $updata, 'affectedRows' => $this->total];
 
             return $res === false ? false : $this->total;
         }
@@ -313,17 +332,28 @@ class Mysqli implements DbInterfaces
     }
 
     /**
-     * 删除数据
+     * 修改数据(别名)
+     * @param array $dataArray
      * @param string $where
      * @return bool
      */
-    public function delete($where='')
+    public function save($dataArray = [], $where = '')
     {
-        if(!empty($where)) $where = $this->structureWhere($where);
+        return $this->update($dataArray, $where);
+    }
 
-        $queryString = 'DELETE FROM '.$this->tableName.$where;
+    /**
+     * 删除数据
+     * @param array $where
+     * @return bool|int|mixed
+     */
+    public function delete($where = [])
+    {
+        if (!empty($where)) $where = $this->structureWhere($where);
 
-        $res = $this->query($queryString,true);
+        $queryString = 'DELETE FROM ' . $this->tableName . $where;
+
+        $res = $this->query($queryString, true);
 
         $this->total = $this->affectedRows();
 
@@ -333,38 +363,48 @@ class Mysqli implements DbInterfaces
     }
 
     /**
+     * 删除数据(别名)
+     * @param array $where
+     * @return bool
+     */
+    public function del($where = [])
+    {
+        return $this->delete($where);
+    }
+
+    /**
      * 条件构造
      * @param array $whereData
+     * @return string
      */
     private function structureWhere($whereData = [])
     {
         $where = ' WHERE ';
-        if(is_array($whereData)){
-            foreach($whereData as $key=>$value){
-                if(is_array($value) && count($value) > 1){
-                    $value[1] = mysqli_real_escape_string($this->link,$value[1]);
-                    switch(strtolower($value[0]))
-                    {
+        if (is_array($whereData)) {
+            foreach ($whereData as $key => $value) {
+                if (is_array($value) && count($value) > 1) {
+                    $value[1] = mysqli_real_escape_string($this->link, $value[1]);
+                    switch (strtolower($value[0])) {
                         case 'in':
-                            $where .= $key . ' IN('.$value[1].') AND ';
+                            $where .= $key . ' IN(' . $value[1] . ') AND ';
                             break;
                         case 'string':
                             $where .= $key . $value[1] . ' AND ';
                             break;
                         default:
                             $value[1] = is_numeric($value[1]) ? $value[1] : "'" . $value[1] . "'";
-                            $where .= $key . ' ' . $value[0] .' '. $value[1] . ' AND ';
+                            $where .= $key . ' ' . $value[0] . ' ' . $value[1] . ' AND ';
                             break;
                     }
-                }else{
-                    $value = mysqli_real_escape_string($this->link,$value);
+                } else {
+                    $value = mysqli_real_escape_string($this->link, $value);
                     $value = is_numeric($value) ? $value : "'" . $value . "'";
                     $where .= $key . '=' . $value . ' AND ';
                 }
             }
-            return rtrim($where,'. AND ');
+            return rtrim($where, '. AND ');
         }
-        return $where.$whereData;
+        return $where . $whereData;
     }
 
 }

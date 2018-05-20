@@ -19,7 +19,9 @@ function dump($vars, $label = '', $return = false)
     } else {
         $content = $label . " :\n" . print_r($vars, true);
     }
-    if ($return) { return $content; }
+    if ($return) {
+        return $content;
+    }
     echo $content;
     return null;
 }
@@ -32,12 +34,12 @@ function dump($vars, $label = '', $return = false)
 function Db($config = null)
 {
     $Db = \Framework\App::$app->get('Db')->getlink();
-    if(is_array($Db) && count($Db) > 0){
-        if(is_null($config)){
+    if (is_array($Db) && count($Db) > 0) {
+        if (is_null($config)) {
             $link = current($Db);
             return $link['obj']->setlink($link['link']);
         }
-        if(!empty($Db[$config])){
+        if (!empty($Db[$config])) {
             return $Db[$config]['obj']->setlink($Db[$config]['link']);
         }
     }
@@ -50,7 +52,7 @@ function Db($config = null)
  */
 function Config($configName)
 {
-    if(empty($configName)) return false;
+    if (empty($configName)) return false;
     return \Framework\App::$app->get('Config')->get($configName);
 }
 
@@ -70,18 +72,18 @@ function Cache()
  * @param string $dir 其他模板文件
  * @return mixed
  */
-function View($fileName='',$dir='')
+function View($fileName = '', $dir = '')
 {
     $Object = \Framework\App::$app->get('View')->init();
-    if(empty($fileName) && empty($dir)) return $Object;
-    if(empty($dir) && !empty($fileName)){
+    if (empty($fileName) && empty($dir)) return $Object;
+    if (empty($dir) && !empty($fileName)) {
         $ViewPath = \Framework\Library\Process\Running::$framworkPath . 'Project/View';
-        $fileName = $ViewPath.'/'.$fileName . '.html';
-    }else{
+        $fileName = $ViewPath . '/' . $fileName . '.html';
+    } else {
         $fileName = $dir;
     }
-    if(!file_exists($fileName)){
-        $fileName = str_replace('\\','/',$fileName);
+    if (!file_exists($fileName)) {
+        $fileName = str_replace('\\', '/', $fileName);
         $error = [
             'file' => __FILE__,
             'message' => "[$fileName] 请检查您的模板是否存在!",
@@ -97,9 +99,9 @@ function View($fileName='',$dir='')
  * @param string $value GET的键名称
  * @return string 为空时返回
  */
-function get($value,$null='')
+function get($value, $null = '')
 {
-    return \Framework\Library\Process\Auxiliary::Receive('get.'.$value,$null);
+    return \Framework\Library\Process\Auxiliary::Receive('get.' . $value, $null);
 }
 
 /**
@@ -107,9 +109,9 @@ function get($value,$null='')
  * @param string $value POST的键名称
  * @return string 为空时返回
  */
-function post($value,$null='')
+function post($value, $null = '')
 {
-    return \Framework\Library\Process\Auxiliary::Receive('post.'.$value,$null);
+    return \Framework\Library\Process\Auxiliary::Receive('post.' . $value, $null);
 }
 
 /**
@@ -118,20 +120,20 @@ function post($value,$null='')
  * @param int $type 是否为包(0=扩展文件,1=扩展包)
  * @return bool
  */
-function extend($name,$type=0)
+function extend($name, $type = 0)
 {
     $Extend = \Framework\App::$app->get('Extend');
-    if(!empty($name) && is_array($name)){
-        foreach($name as $value){
-            if($type==1){
+    if (!empty($name) && is_array($name)) {
+        foreach ($name as $value) {
+            if ($type == 1) {
                 $Extend->addPackage($value);
-            }else{
+            } else {
                 $Extend->addClass($value);
             }
         }
         return true;
     }
-    if($type==1){
+    if ($type == 1) {
         return $Extend->addPackage($name);
     }
     return $Extend->addClass($name);

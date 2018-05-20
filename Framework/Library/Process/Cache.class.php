@@ -22,9 +22,9 @@ class Cache
      */
     private $CacheType = [
 
-        'memcache'  => 'Drive\Cache\Memcache',
+        'memcache' => 'Drive\Cache\Memcache',
 
-        'redis'   => 'Drive\Cache\Redis'
+        'redis' => 'Drive\Cache\Redis'
     ];
 
     /**
@@ -33,9 +33,9 @@ class Cache
     public function init()
     {
         $CacheConfig = \Framework\App::$app->get('Config')->get('Cache');
-        if(is_array($CacheConfig) && isset($CacheConfig['ip'])){
+        if (is_array($CacheConfig) && isset($CacheConfig['ip'])) {
             $this->object = \Framework\App::$app->get($this->CacheType[strtolower($CacheConfig['cacheType'])]);
-            $this->object->connect($CacheConfig['ip'],$CacheConfig['port']);
+            $this->object->connect($CacheConfig['ip'], $CacheConfig['port']);
         }
         return $this;
     }

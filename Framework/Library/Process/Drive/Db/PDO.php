@@ -3,6 +3,7 @@
 namespace Framework\Library\Process\Drive\Db;
 
 use \Framework\Library\Interfaces\DbInterface as DbInterfaces;
+
 /**
  * PDO Driver
  * Class PDO
@@ -73,10 +74,10 @@ class Pdo implements DbInterfaces
         }
         try {
 
-            $dsn = !empty($config['dsn']) ? $config['dsn'] : "mysql:host=" . $config['host'] . ";port=".$config['port'].";dbname=" . $config['database'];
+            $dsn = !empty($config['dsn']) ? $config['dsn'] : "mysql:host=" . $config['host'] . ";port=" . $config['port'] . ";dbname=" . $config['database'];
             $opt = array(
                 \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES '".$config['char']."'"
+                \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES '" . $config['char'] . "'"
             );
 
             $this->pdo = new \PDO($dsn, $config['username'], $config['password'], $opt);
@@ -90,8 +91,10 @@ class Pdo implements DbInterfaces
     /**
      * 操作多数据库连接
      * @param $link
+     * @return $this
      */
-    public function setlink($link){
+    public function setlink($link)
+    {
         $this->pdo = $link;
         return $this;
     }
@@ -167,10 +170,10 @@ class Pdo implements DbInterfaces
     /**
      * 执行SQL
      * @param $queryString
-     * @param null $method
+     * @param bool $select
      * @return $this
      */
-    public function query($queryString,$select=false)
+    public function query($queryString, $select = false)
     {
         try {
             $qry = $this->pdo->prepare($queryString);
@@ -183,12 +186,12 @@ class Pdo implements DbInterfaces
 
             $this->total = $qry->rowCount();
 
-            $this->queryDebug = ['string' => $queryString , 'total' => $this->total];
+            $this->queryDebug = ['string' => $queryString, 'total' => $this->total];
 
             $this->handleres($queryString);
 
         } catch (\PDOException $ex) {
-            $this->handleres($queryString,true.$ex);
+            $this->handleres($queryString, true . $ex);
         }
 
         return $this;
@@ -200,12 +203,12 @@ class Pdo implements DbInterfaces
      * @param $tableName
      * @return $this
      */
-    public function table($tableName='')
+    public function table($tableName = '')
     {
         if (!empty($tabName)) {
             $this->tableName = $tabName;
             return $this;
-        }else{
+        } else {
             $error = [
                 'file' => __FILE__,
                 'message' => 'Need to fill in Table Value!',
@@ -222,35 +225,40 @@ class Pdo implements DbInterfaces
      */
     public function select($qryArray = [])
     {
-        $field = '';$join='';$where = '';$order='';$group='';$limit='';
+        $field = '';
+        $join = '';
+        $where = '';
+        $order = '';
+        $group = '';
+        $limit = '';
 
-        if(isset($qryArray['field'])){
-            $field = is_array($qryArray['field']) ? implode(',',$qryArray['field']) : $qryArray['field'];
+        if (isset($qryArray['field'])) {
+            $field = is_array($qryArray['field']) ? implode(',', $qryArray['field']) : $qryArray['field'];
         }
-        if(empty($field)) $field = ' * ';
+        if (empty($field)) $field = ' * ';
 
-        if(isset($qryArray['join'])){
-            $join .= is_array($qryArray['join']) ? implode(' ',$qryArray['join']) : $qryArray['join'];
-            if(empty($join)){
-                $join = ' '.$join;
+        if (isset($qryArray['join'])) {
+            $join .= is_array($qryArray['join']) ? implode(' ', $qryArray['join']) : $qryArray['join'];
+            if (empty($join)) {
+                $join = ' ' . $join;
             }
         }
-        if(isset($qryArray['where'])){
+        if (isset($qryArray['where'])) {
             $where = $this->structureWhere($qryArray['where']);
         }
-        if(isset($qryArray['orderby'])){
-            $order = is_array($qryArray['orderby']) ? implode(',',$qryArray['orderby']) : $qryArray['orderby'];
-            $order = ' ORDER BY '.$order;
+        if (isset($qryArray['orderby'])) {
+            $order = is_array($qryArray['orderby']) ? implode(',', $qryArray['orderby']) : $qryArray['orderby'];
+            $order = ' ORDER BY ' . $order;
         }
-        if(isset($qryArray['groupby'])){
-            $group = is_array($qryArray['groupby']) ? implode(',',$qryArray['groupby']) : $qryArray['groupby'];
-            $group = ' GROUP BY '.$group;
+        if (isset($qryArray['groupby'])) {
+            $group = is_array($qryArray['groupby']) ? implode(',', $qryArray['groupby']) : $qryArray['groupby'];
+            $group = ' GROUP BY ' . $group;
         }
-        if(isset($qryArray['limit'])){
-            $limit = is_array($qryArray['limit']) ? implode(',',$qryArray['limit']) : $qryArray['limit'];
-            $limit = ' LIMIT '.$limit;
+        if (isset($qryArray['limit'])) {
+            $limit = is_array($qryArray['limit']) ? implode(',', $qryArray['limit']) : $qryArray['limit'];
+            $limit = ' LIMIT ' . $limit;
         }
-        $queryString = 'SELECT '.$field.' FROM '.$this->tableName.$join.$where.$group.$order.$limit;
+        $queryString = 'SELECT ' . $field . ' FROM ' . $this->tableName . $join . $where . $group . $order . $limit;
 
         try {
 
@@ -264,14 +272,13 @@ class Pdo implements DbInterfaces
 
             $this->total = $qry->rowCount();
 
-            $this->queryDebug = ['string' => $queryString , 'affectedRows' => $this->total];
+            $this->queryDebug = ['string' => $queryString, 'affectedRows' => $this->total];
 
             $this->handleres($queryString);
 
             return $this;
-        }
-        catch (\PDOException $ex){
-            $this->handleres($queryString,true,$ex);
+        } catch (\PDOException $ex) {
+            $this->handleres($queryString, true, $ex);
         }
     }
 
@@ -279,37 +286,47 @@ class Pdo implements DbInterfaces
     /**
      * 插入数据
      * @param array $dataArray
-     * @param array $unique
-     * @return array
+     * @return bool|mixed
      */
     public function insert($dataArray = [])
     {
-        if(is_array($dataArray) && count($dataArray) > 0){
-            $v_key = '';$v_value = '';
-            foreach($dataArray as $key=>$value){
-                $v_key .= '`'.$key . '`,';
+        if (is_array($dataArray) && count($dataArray) > 0) {
+            $v_key = '';
+            $v_value = '';
+            foreach ($dataArray as $key => $value) {
+                $v_key .= '`' . $key . '`,';
                 $v_value .= is_int($value) ? $value . ',' : "'{$value}',";
             }
-            $v_key = rtrim($v_key,'.,');$v_value = rtrim($v_value,'.,');
+            $v_key = rtrim($v_key, '.,');
+            $v_value = rtrim($v_value, '.,');
 
-            $queryString = 'INSERT INTO `'.$this->tableName.'` ('.$v_key.') VALUES('.$v_value.');';
+            $queryString = 'INSERT INTO `' . $this->tableName . '` (' . $v_key . ') VALUES(' . $v_value . ');';
 
             try {
                 $this->pdo->exec($queryString);
 
                 $lastInsertedId = $this->pdo->lastInsertId();
 
-                $this->queryDebug = ['string' => $queryString, 'value' => $value , 'insertedid' => $lastInsertedId];
+                $this->queryDebug = ['string' => $queryString, 'value' => $value, 'insertedid' => $lastInsertedId];
 
                 $this->handleres($queryString);
 
                 return $lastInsertedId;
-            }
-            catch (\PDOException $ex){
-                $this->handleres($queryString,true,$ex);
+            } catch (\PDOException $ex) {
+                $this->handleres($queryString, true, $ex);
             }
         }
         return false;
+    }
+
+    /**
+     * 插入数据(别名)
+     * @param array $dataArray
+     * @return bool
+     */
+    public function add($dataArray = [])
+    {
+        return $this->insert($dataArray);
     }
 
     /**
@@ -320,32 +337,41 @@ class Pdo implements DbInterfaces
      */
     public function update($dataArray = [], $where = [])
     {
-        if(is_array($dataArray) && count($dataArray) > 0){
+        if (is_array($dataArray) && count($dataArray) > 0) {
             $updata = '';
-            foreach($dataArray as $key=>$value){
+            foreach ($dataArray as $key => $value) {
                 $value = is_int($value) ? $value : "'{$value}'";
                 $updata .= "`$key`={$value},";
             }
-            if(!empty($where)) $where = $this->structureWhere($where);
-            $queryString = 'UPDATE '.$this->tableName.' SET '.rtrim($updata,'.,').$where;
+            if (!empty($where)) $where = $this->structureWhere($where);
+            $queryString = 'UPDATE ' . $this->tableName . ' SET ' . rtrim($updata, '.,') . $where;
 
             try {
                 $this->total = $this->pdo->exec($queryString);
 
-                $this->queryDebug = ['string' => $queryString, 'update' => $updata , 'affectedRows' => $this->total];
+                $this->queryDebug = ['string' => $queryString, 'update' => $updata, 'affectedRows' => $this->total];
 
                 $this->handleres($queryString);
 
                 return $this->total;
-            }
-            catch (\PDOException $ex){
-                $this->handleres($queryString,true,$ex);
+            } catch (\PDOException $ex) {
+                $this->handleres($queryString, true, $ex);
             }
 
         }
         return false;
     }
 
+    /**
+     * 修改数据(别名)
+     * @param array $dataArray
+     * @param string $where
+     * @return bool
+     */
+    public function save($dataArray = [], $where = '')
+    {
+        return $this->update($dataArray, $where);
+    }
 
     /**
      * 删除数据
@@ -354,9 +380,9 @@ class Pdo implements DbInterfaces
      */
     public function delete($where)
     {
-        if(!empty($where)) $where = $this->structureWhere($where);
+        if (!empty($where)) $where = $this->structureWhere($where);
 
-        $queryString = 'DELETE FROM '.$this->tableName.$where;
+        $queryString = 'DELETE FROM ' . $this->tableName . $where;
 
         try {
             $this->total = $this->pdo->exec($queryString);
@@ -366,45 +392,54 @@ class Pdo implements DbInterfaces
             $this->handleres($queryString);
 
             return $this->total;
+        } catch (\PDOException $ex) {
+            $this->handleres($queryString, true, $ex);
         }
-        catch (\PDOException $ex){
-            $this->handleres($queryString,true,$ex);
-        }
+    }
+
+    /**
+     * 删除数据(别名)
+     * @param array $where
+     * @return bool
+     */
+    public function del($where = [])
+    {
+        return $this->delete($where);
     }
 
     /**
      * 条件构造
      * @param array $whereData
+     * @return string
      */
     private function structureWhere($whereData = [])
     {
         $where = ' WHERE ';
-        if(is_array($whereData)){
-            foreach($whereData as $key=>$value){
-                if(is_array($value) && count($value) > 1){
+        if (is_array($whereData)) {
+            foreach ($whereData as $key => $value) {
+                if (is_array($value) && count($value) > 1) {
                     $value[1] = addslashes($value[1]);
-                    switch(strtolower($value[0]))
-                    {
+                    switch (strtolower($value[0])) {
                         case 'in':
-                            $where .= $key . ' IN('.$value[1].') AND ';
+                            $where .= $key . ' IN(' . $value[1] . ') AND ';
                             break;
                         case 'string':
                             $where .= $key . $value[1] . ' AND ';
                             break;
                         default:
                             $value[1] = is_numeric($value[1]) ? $value[1] : "'" . $value[1] . "'";
-                            $where .= $key . ' ' . $value[0] .' '. $value[1] . ' AND ';
+                            $where .= $key . ' ' . $value[0] . ' ' . $value[1] . ' AND ';
                             break;
                     }
-                }else{
+                } else {
                     $value = addslashes($value);
                     $value = is_numeric($value) ? $value : "'" . $value . "'";
                     $where .= $key . '=' . $value . ' AND ';
                 }
             }
-            return rtrim($where,'. AND ');
+            return rtrim($where, '. AND ');
         }
-        return $where.$whereData;
+        return $where . $whereData;
     }
 
     /**
@@ -413,11 +448,11 @@ class Pdo implements DbInterfaces
      * @param bool $iserror
      * @param array $ex
      */
-    private function handleres($sql,$iserror=false,$ex=[])
+    private function handleres($sql, $iserror = false, $ex = [])
     {
         $status = $iserror === false ? 'success' : 'error';
-        \Framework\App::$app->get('Log')->Record(\Framework\Library\Process\Running::$framworkPath .'/Project/Runtime/Datebase','sql',"[{$status}] ".$sql);
-        if($iserror){
+        \Framework\App::$app->get('Log')->Record(\Framework\Library\Process\Running::$framworkPath . '/Project/Runtime/Datebase', 'sql', "[{$status}] " . $sql);
+        if ($iserror) {
             exit($this->dbErrorMsg . $ex->getMessage());
         }
     }

@@ -11,7 +11,7 @@ class Auxiliary
 {
     /**
      * HTTP状态码
-     * @param $code
+     * @param $code 状态码
      * @return string
      */
     static public function httpcode($code)
@@ -63,13 +63,13 @@ class Auxiliary
 
     /**
      * 返回一段兼容网页编码的文本
-     * @param string $text
-     * @param string $char
+     * @param string $text 编码的内容
+     * @param string $char 编码格式
      * @return string
      */
-    static public function ShowText($text='',$char="UTF-8")
+    static public function ShowText($text = '', $char = "UTF-8")
     {
-        return '<meta charset="'.$char.'">'.$text;
+        return '<meta charset="' . $char . '">' . $text;
     }
 
     /**
@@ -88,7 +88,7 @@ class Auxiliary
             }
         } else {
             if (getenv("HTTP_X_FORWARDED_FOR")) {
-                $realip = getenv( "HTTP_X_FORWARDED_FOR");
+                $realip = getenv("HTTP_X_FORWARDED_FOR");
             } elseif (getenv("HTTP_CLIENT_IP")) {
                 $realip = getenv("HTTP_CLIENT_IP");
             } else {
@@ -112,24 +112,23 @@ class Auxiliary
      * 生成URL
      * @param string $name 地址
      * @param string $parm 参数
-     *
      * @return String
      */
-    static public function Url($name,$parm='')
+    static public function Url($name, $parm = '')
     {
-        if(!empty($name)){
-            $SSL = (self::isSSL())?('https://'):('http://');
+        if (!empty($name)) {
+            $SSL = (self::isSSL()) ? ('https://') : ('http://');
             $Port = self::Receive('server.SERVER_PORT');
-            $Port = ($Port != '80')?($Port):('');
-            $ExecFile = explode('.php',self::Receive('server.PHP_SELF'));
-            $Path = (count($ExecFile) > 0)?($ExecFile[0].'.php'):('');
-            $Url = $SSL.self::Receive('server.HTTP_HOST').$Port.$Path;
-            if(strpos($name,'/')){
-                $PathArr = explode('/',$name);
-                foreach($PathArr as $val){
-                    if(!empty($val)) $Url .= '/' . $val;
+            $Port = ($Port != '80') ? ($Port) : ('');
+            $ExecFile = explode('.php', self::Receive('server.PHP_SELF'));
+            $Path = (count($ExecFile) > 0) ? ($ExecFile[0] . '.php') : ('');
+            $Url = $SSL . self::Receive('server.HTTP_HOST') . $Port . $Path;
+            if (strpos($name, '/')) {
+                $PathArr = explode('/', $name);
+                foreach ($PathArr as $val) {
+                    if (!empty($val)) $Url .= '/' . $val;
                 }
-                if(!empty($parm)) $Url .= '?'.$parm;
+                if (!empty($parm)) $Url .= '?' . $parm;
             }
             return $Url;
         }
@@ -138,15 +137,15 @@ class Auxiliary
 
     /**
      * 将字符编码转换到utf8
-     * @param string $string
+     * @param string $string 欲转换的字符串
      * @return string
      */
     static public function toUTF8($string = '')
     {
-        if(!empty($string)){
-            $encoding = mb_detect_encoding($string, array('ASCII','UTF-8','GB2312','GBK','BIG5'));
-            if($encoding != 'UTF-8'){
-                return iconv($encoding,'UTF-8',$string);
+        if (!empty($string)) {
+            $encoding = mb_detect_encoding($string, array('ASCII', 'UTF-8', 'GB2312', 'GBK', 'BIG5'));
+            if ($encoding != 'UTF-8') {
+                return iconv($encoding, 'UTF-8', $string);
             }
             return $string;
         }
@@ -155,44 +154,63 @@ class Auxiliary
 
     /**
      * 获取http数据
-     * @param string $name
-     * @param string $null
-     * @param bool $isEncode
-     * @param string $function
+     * @param string $name 获取的名称
+     * @param string $null 默认返回
+     * @param bool $isEncode 是否编码
+     * @param string $function 编码函数
      * @return string
      */
-    static public function Receive($name = '',$null = '',$isEncode = true,$function = 'htmlspecialchars')
+    static public function Receive($name = '', $null = '', $isEncode = true, $function = 'htmlspecialchars')
     {
-        if(strpos($name,'.')){
-            $method = explode('.',$name);
-            $name   = $method[1];
+        if (strpos($name, '.')) {
+            $method = explode('.', $name);
+            $name = $method[1];
             $method = $method[0];
         } else {
             $method = '';
         }
-        switch(strtolower($method)){
-            case 'get': $Data = & $_GET; break;
-            case 'post': $Data = & $_POST; break;
-            case 'put': parse_str(file_get_contents('php://input'),$Data); break;
-            case 'globals': $Data = & $GLOBALS; break;
-            case 'session': $Data = & $_SESSION; break;
-            case 'server': $Data = & $_SERVER; break;
+        switch (strtolower($method)) {
+            case 'get':
+                $Data = &$_GET;
+                break;
+            case 'post':
+                $Data = &$_POST;
+                break;
+            case 'put':
+                parse_str(file_get_contents('php://input'), $Data);
+                break;
+            case 'globals':
+                $Data = &$GLOBALS;
+                break;
+            case 'session':
+                $Data = &$_SESSION;
+                break;
+            case 'server':
+                $Data = &$_SERVER;
+                break;
             default:
-                switch($_SERVER['REQUEST_METHOD']){
-                    default: $Data = & $_GET; break;
-                    case 'POST': $Data = & $_POST; break;
-                    case 'PUT': parse_str(file_get_contents('php://input'),$Data); break;
-                };break;
+                switch ($_SERVER['REQUEST_METHOD']) {
+                    default:
+                        $Data = &$_GET;
+                        break;
+                    case 'POST':
+                        $Data = &$_POST;
+                        break;
+                    case 'PUT':
+                        parse_str(file_get_contents('php://input'), $Data);
+                        break;
+                };
+                break;
         }
-        if(isset($Data[$name])){
-            if(is_array($Data[$name])){
-                foreach($Data[$name] as $key => $val){
-                    $Data[$key] = ($isEncode)?((function_exists($function))?($function($val)):($val)):($val);
+        if (isset($Data[$name])) {
+            if (is_array($Data[$name])) {
+                foreach ($Data[$name] as $key => $val) {
+                    $Data[$key] = ($isEncode) ? ((function_exists($function)) ? ($function($val)) : ($val)) : ($val);
                 }
                 return $Data[$name];
             } else {
-                $value = ($isEncode)?((function_exists($function))?($function($Data[$name])):($Data[$name])):($Data[$name]);
-                return (!is_null($value))?($value):(($null)?($null):(''));
+                $value = ($isEncode) ? ((function_exists($function)) ? ($function($Data[$name])) : ($Data[$name])) : ($Data[$name]);
+                return (!is_null($value)) ? ($value) : (($null) ? ($null) : (''));
             }
         } else {
             return $null;
@@ -208,9 +226,9 @@ class Auxiliary
     {
         $HTTPS = self::Receive('server.HTTPS');
         $PORT = self::Receive('server.SERVER_PORT');
-        if(isset($HTTPS) && ('1' == $HTTPS || 'on' == strtolower($HTTPS))) {
+        if (isset($HTTPS) && ('1' == $HTTPS || 'on' == strtolower($HTTPS))) {
             return true;
-        } elseif(isset($PORT) && ('443' == $PORT )) {
+        } elseif (isset($PORT) && ('443' == $PORT)) {
             return true;
         }
         return false;
@@ -222,9 +240,9 @@ class Auxiliary
      */
     static public function getPublic()
     {
-        $scriptName = str_replace('\\','/',dirname($_SERVER['SCRIPT_NAME']));
-        if(empty($scriptName)) $scriptName = '/';
-        if(substr($scriptName, -1) != '/') $scriptName .= '/';
-        return rtrim($scriptName).'Public/';
+        $scriptName = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+        if (empty($scriptName)) $scriptName = '/';
+        if (substr($scriptName, -1) != '/') $scriptName .= '/';
+        return rtrim($scriptName) . 'Public/';
     }
 }

@@ -3,6 +3,7 @@
 namespace Framework\Library\Process;
 
 use \Framework\Library\Interfaces\VisitInterface as VisitInterfaces;
+
 /**
  * 访问处理器
  * Class Visit
@@ -25,7 +26,7 @@ class Visit implements VisitInterfaces
     {
         $VisitConfig = \Framework\App::$app->get('Config')->get('frame');
 
-        if(isset($VisitConfig['Visit'])) self::$param = $VisitConfig['Visit'];
+        if (isset($VisitConfig['Visit'])) self::$param = $VisitConfig['Visit'];
     }
 
     /**
@@ -34,9 +35,9 @@ class Visit implements VisitInterfaces
      */
     public function bind($param)
     {
-        if(is_array($param)){
+        if (is_array($param)) {
             $count = count($param);
-            switch($count){
+            switch ($count) {
                 case 1:
                     self::$param['Controller'] = $param[0];
                     break;
@@ -50,7 +51,9 @@ class Visit implements VisitInterfaces
                     self::$param['Function'] = $param[2];
                     break;
             }
-            self::$param['Function'] = str_replace(self::$param['extend'],'',self::$param['Function']);
+            if (isset(self::$param['Function'])) {
+                self::$param['Function'] = str_replace(self::$param['extend'], '', self::$param['Function']);
+            }
         }
     }
 
@@ -63,7 +66,7 @@ class Visit implements VisitInterfaces
         \Framework\App::$app->get('Router');
 
         return self::$param['namespace'] . '\\' . ucwords(self::$param['Project']) . '\\' . ucwords
-        (self::$param['Controller']);
+            (self::$param['Controller']);
     }
 
     /**
@@ -72,7 +75,7 @@ class Visit implements VisitInterfaces
      */
     static public function getfunction()
     {
-        if(empty(self::$param['Function'])){
+        if (empty(self::$param['Function'])) {
             $error = [
                 'file' => Structure::$endfile,
                 'message' => '无法执行空方法!'

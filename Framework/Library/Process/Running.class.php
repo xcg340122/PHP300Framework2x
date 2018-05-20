@@ -11,10 +11,16 @@ class Running
 {
 
     /**
-     * 调试模式
+     * 是否系统异常
      * @var bool
      */
-    public $Debug = true;
+    static public $iserror = false;
+
+    /**
+     * 开发模式(true=>调试模式,false=>线上模式)
+     * @var bool
+     */
+    static public $Debug;
 
     /**
      * 监视运行参数
@@ -34,7 +40,16 @@ class Running
      */
     public function __construct()
     {
-        self::$framworkPath = str_replace('Framework/','',\Framework\App::$app->corePath);
+        self::$framworkPath = str_replace('Framework/', '', \Framework\App::$app->corePath);
+    }
+
+    /**
+     * 设定开发模式
+     * @param bool $status
+     */
+    public function isDev($status = true)
+    {
+        self::$Debug = $status;
     }
 
     /**
@@ -43,7 +58,7 @@ class Running
     public function startRecord()
     {
         $this->param['startTime'] = microtime(true);
-        $this->param['startRam'] = (function_exists('memory_get_usage'))?(memory_get_usage()):(0);
+        $this->param['startRam'] = (function_exists('memory_get_usage')) ? (memory_get_usage()) : (0);
     }
 
     /**
@@ -52,7 +67,7 @@ class Running
     public function endRecord()
     {
         $this->param['endTime'] = microtime(true);
-        $this->param['endRam'] = (function_exists('memory_get_usage'))?(memory_get_usage()):(0);
+        $this->param['endRam'] = (function_exists('memory_get_usage')) ? (memory_get_usage()) : (0);
         $this->param['consumeRam'] = $this->consumeRam(($this->param['endRam'] - $this->param['startRam']));
     }
 
@@ -61,8 +76,8 @@ class Running
      */
     private function consumeRam($size)
     {
-        $unit=array('b','kb','mb','gb','tb','pb');
-        return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
+        $unit = array('b', 'kb', 'mb', 'gb', 'tb', 'pb');
+        return @round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i];
     }
 
     /**

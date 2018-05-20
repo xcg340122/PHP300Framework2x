@@ -36,25 +36,26 @@ class Extend
     {
         $this->PackagePath = Running::$framworkPath . 'Extend/Package/';
         $this->ClassPath = Running::$framworkPath . 'Extend/Class/';
-        if(file_exists(Running::$framworkPath . 'vendor/autoload.php')) require_once Running::$framworkPath . 'vendor/autoload.php';
+        if (file_exists(Running::$framworkPath . 'vendor/autoload.php')) require_once Running::$framworkPath . 'vendor/autoload.php';
     }
 
     /**
      * 加入新的扩展包
      * @param string $PackageName
+     * @return bool
      */
-    public function addPackage($PackageName='')
+    public function addPackage($PackageName = '')
     {
-        if(!empty($PackageName) && file_exists($this->PackagePath . $PackageName)){
+        if (!empty($PackageName) && file_exists($this->PackagePath . $PackageName)) {
             $PackageName = $this->PackagePath . $PackageName;
             $extension = self::get_extension($PackageName);
-            if(strtolower($extension)  == 'php'){
+            if (strtolower($extension) == 'php') {
                 include_once $PackageName;
                 return true;
             }
-            if(in_array($extension,['zip','tar'])){
+            if (in_array($extension, ['zip', 'tar'])) {
                 $Packagezip = $this->getPackageName($PackageName);
-                $this->releasePackage($PackageName,$this->PackagePath.'Cache',$Packagezip);
+                $this->releasePackage($PackageName, $this->PackagePath . 'Cache', $Packagezip);
             }
         }
         return false;
@@ -63,10 +64,11 @@ class Extend
     /**
      * 加入新的扩展类
      * @param string $ClassName
+     * @return bool
      */
-    public function addClass($ClassName='')
+    public function addClass($ClassName = '')
     {
-        if(!empty($ClassName) && file_exists($this->ClassPath . $ClassName)){
+        if (!empty($ClassName) && file_exists($this->ClassPath . $ClassName)) {
             include_once $this->ClassPath . $ClassName;
         }
         return false;
@@ -85,9 +87,9 @@ class Extend
     /**
      * 获取zip包信息
      */
-    private function getPackageInfo($infoPath='')
+    private function getPackageInfo($infoPath = '')
     {
-        if(file_exists($infoPath)){
+        if (file_exists($infoPath)) {
             return include $infoPath;
         }
         return false;
@@ -97,19 +99,21 @@ class Extend
      * 释放压缩文件
      * @param string $zipfile
      * @param string $folder
+     * @param $Packagezip
+     * @return bool
      */
-    private function releasePackage($zipfile='',$folder='',$Packagezip)
+    private function releasePackage($zipfile = '', $folder = '', $Packagezip)
     {
-        if($this->iszipload($folder,$Packagezip)){
+        if ($this->iszipload($folder, $Packagezip)) {
             return true;
         }
-        if(class_exists('ZipArchive',false)){
+        if (class_exists('ZipArchive', false)) {
             $zip = new \ZipArchive;
             $res = $zip->open($zipfile);
             if ($res === TRUE) {
                 $zip->extractTo($folder);
                 $zip->close();
-                $this->iszipload($folder,$Packagezip);
+                $this->iszipload($folder, $Packagezip);
             } else {
                 $error = [
                     'file' => $zipfile,
@@ -117,7 +121,7 @@ class Extend
                 ];
                 \Framework\App::$app->get('LogicExceptions')->readErrorFile($error);
             }
-        }else{
+        } else {
             $error = [
                 'file' => $zipfile,
                 'message' => "你需要先启动 PHP-ZipArchive 扩展!"
@@ -131,14 +135,15 @@ class Extend
      * 加载扩展文件
      * @param $folder
      * @param $Packagezip
+     * @return bool
      */
-    private function iszipload($folder,$Packagezip)
+    private function iszipload($folder, $Packagezip)
     {
         $autoload = $folder . '/' . $Packagezip . '/autoload.php';
-        if(file_exists($autoload)){
+        if (file_exists($autoload)) {
             include_once $autoload;
-            $this->Extendbox[$Packagezip] = $this->getPackageInfo($folder.$Packagezip.'/info.php');
-            file_put_contents($folder . '/' . $Packagezip.'/marked.txt','This is an automatically unpacked package. Please do not manually modify or delete it!  - PHP300Framework2.0');
+            $this->Extendbox[$Packagezip] = $this->getPackageInfo($folder . $Packagezip . '/info.php');
+            file_put_contents($folder . '/' . $Packagezip . '/marked.txt', 'This is an automatically unpacked package. Please do not manually modify or delete it!  - PHP300Framework2.0');
             return true;
         }
         return false;
@@ -152,9 +157,9 @@ class Extend
     private function getPackageName($Package)
     {
         $extension = self::get_extension($Package);
-        $path = explode('Package/',$Package);
-        if(isset($path[1])){
-            return str_replace(array('.',$extension),'',$path[1]);
+        $path = explode('Package/', $Package);
+        if (isset($path[1])) {
+            return str_replace(array('.', $extension), '', $path[1]);
         }
         return false;
     }

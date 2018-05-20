@@ -16,5 +16,5 @@ interface  LogInterface
      * @param $Log
      * @return mixed
      */
-    public function Record($LogPath,$fileName,$Log);
+    public function Record($LogPath, $fileName, $Log);
 }

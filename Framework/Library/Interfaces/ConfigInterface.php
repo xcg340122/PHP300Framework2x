@@ -7,7 +7,8 @@ namespace Framework\Library\Interfaces;
  * Interface ConfigInterface
  * @package Framework\Library\Interfaces
  */
-interface ConfigInterface{
+interface ConfigInterface
+{
 
     /**
      * 读取配置
@@ -22,5 +23,5 @@ interface ConfigInterface{
      * @param $val
      * @return mixed
      */
-    public function set($key,$val);
+    public function set($key, $val);
 }

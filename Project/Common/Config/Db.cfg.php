@@ -5,27 +5,27 @@
  */
 return [
 
-  /**
-   * 默认连接
-   */
+    /**
+     * 默认连接
+     */
 
-  'default' => [
+    'default' => [
 
-      'host' => '127.0.0.1',
+        'host' => '127.0.0.1',
 
-      'port' => 3306,
+        'port' => 3306,
 
-      'username' => 'root',
+        'username' => 'root',
 
-      'password' => 'root',
+        'password' => 'root',
 
-      'database' => 'mysql',
+        'database' => 'mysql',
 
-      'char' => 'utf8',
+        'char' => 'utf8',
 
-      'dbType' => 'mysqli',
+        'dbType' => 'mysqli',
 
-      'connect' => false
-  ]
+        'connect' => false
+    ]
 
 ];

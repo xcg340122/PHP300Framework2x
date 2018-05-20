@@ -7,7 +7,8 @@ namespace Framework\Library\Interfaces;
  * Interface CacheInterface
  * @package Framework\Library\Interfaces
  */
-interface CacheInterface{
+interface CacheInterface
+{
 
     /**
      * 连接缓存服务器
@@ -16,7 +17,7 @@ interface CacheInterface{
      * @param array $auth
      * @return mixed
      */
-    public function connect($ip,$port,$auth=[]);
+    public function connect($ip, $port, $auth = []);
 
     /**
      * 获取一个缓存标识
@@ -33,7 +34,7 @@ interface CacheInterface{
      * @param int $expire
      * @return mixed
      */
-    public function set($key,$value,$iszip=false,$expire = 3600);
+    public function set($key, $value, $iszip = false, $expire = 3600);
 
     /**
      * 删除一个标识
@@ -41,7 +42,7 @@ interface CacheInterface{
      * @param int $timeout
      * @return mixed
      */
-    public function delete($key,$timeout = 0);
+    public function delete($key, $timeout = 0);
 
     /**
      * 替换标识
@@ -51,8 +52,8 @@ interface CacheInterface{
      * @param int $expire
      * @return mixed
      */
-    public function replace($key,$value,$iszip=false,$expire = 3600);
-    
+    public function replace($key, $value, $iszip = false, $expire = 3600);
+
     /**
      * 检查值是否存在
      * @param $key
@@ -72,7 +73,7 @@ interface CacheInterface{
      * @param int $number
      * @return mixed
      */
-    public function decrement($key,$number=1);
+    public function decrement($key, $number = 1);
 
     /**
      * 增加标识的值
@@ -80,7 +81,7 @@ interface CacheInterface{
      * @param int $number
      * @return mixed
      */
-    public function increment($key,$number=1);
+    public function increment($key, $number = 1);
 
     /**
      * 获得版本号

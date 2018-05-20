@@ -1,20 +1,23 @@
 <?php
+
 namespace App\Home;
 
-use Framework\Library\Process\Auxiliary;
-
-class  Index {
+/**
+ * 默认首页控制器
+ * Class Index
+ * @package App\Home
+ */
+class Index
+{
 
     public function index()
     {
         $View = View('Home/index');
 
-        $View->public = Auxiliary::getPublic();
-
-        $View->show  = 'PHP300Framework - 想象无极限';
-
-        $View->version = '2.2.1';
-
-        return $View->get();
+        return $View->data([
+            'show' => 'PHP300Framework - 想象无极限',
+            'describe' => '梦还是要有的万一实现了呢',
+            'version' => '2.2.2'
+        ])->get();
     }
 }

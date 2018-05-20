@@ -1,4 +1,5 @@
 <?php
+
 namespace Framework\Library\Process;
 
 use \Framework\Library\Interfaces\ViewInterface as ViewInterfaces;
@@ -52,11 +53,12 @@ class View implements ViewInterfaces
      */
     public function init()
     {
-        $this->ViewCompile = Running::$framworkPath . '/Project/Runtime/' . Visit::$param['Controller'] . '/View';
-        $this->ViewPath = Running::$framworkPath . '/Project/View';
+        $dir = Running::$iserror ? 'View' : Visit::$param['Project'];
+        $this->ViewCompile = Running::$framworkPath . 'Project/Runtime/' . $dir . '/View';
+        $this->ViewPath = Running::$framworkPath . 'Project/View';
         $this->ViewCache = $this->ViewCompile . '/Cache';
         $functions = spl_autoload_functions();
-        foreach($functions as $function) {
+        foreach ($functions as $function) {
             spl_autoload_unregister($function);
         }
         \Framework\App::$app->get('Extend')->addPackage('smarty/Smarty.class.php');
@@ -84,13 +86,16 @@ class View implements ViewInterfaces
      */
     public function get()
     {
-        if($this->file == ''){
+        if ($this->file == '') {
             return false;
         }
-        foreach($this->variable as $key=>$value){
-            $this->View->assign($key,$value);
+        foreach ($this->variable as $key => $value) {
+            $this->View->assign($key, $value);
         }
         $html = $this->View->fetch($this->file);
+        if (strpos($this->file, 'error.tpl') !== false && $html == '') {
+            die(Auxiliary::ShowText('程序异常,请查看日志!'));
+        }
         return $html;
     }
 
@@ -101,9 +106,24 @@ class View implements ViewInterfaces
      */
     public function __set($name, $value)
     {
-        if(!in_array($name,$this->variable)){
+        if (!in_array($name, $this->variable)) {
             $this->variable[$name] = $value;
         }
+    }
+
+    /**
+     * 设定模板变量
+     * @param null $data
+     * @return $this
+     */
+    public function data($data = null)
+    {
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                $this->variable[$key] = $value;
+            }
+        }
+        return $this;
     }
 
     /**
@@ -112,8 +132,8 @@ class View implements ViewInterfaces
      */
     private function dirProcessing($dir)
     {
-        if(is_array($dir)){
-            foreach($dir as $value){
+        if (is_array($dir)) {
+            foreach ($dir as $value) {
                 Structure::createDir($value);
             }
         }

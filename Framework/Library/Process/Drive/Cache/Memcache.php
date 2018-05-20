@@ -3,6 +3,7 @@
 namespace Framework\Library\Process\Drive\Cache;
 
 use \Framework\Library\Interfaces\CacheInterface as CacheInterfaces;
+
 /**
  * Class Memcache
  * @package Framework\Library\Process\Drive\Cache
@@ -37,7 +38,7 @@ class Memcache implements CacheInterfaces
      * @param $ip
      * @param $port
      */
-    public function connect($ip,$port,$auth=[])
+    public function connect($ip, $port, $auth = [])
     {
         $this->obj->connect($ip, $port);
     }
@@ -49,7 +50,7 @@ class Memcache implements CacheInterfaces
      */
     public function get($key)
     {
-        if(!empty($key)){
+        if (!empty($key)) {
             return $this->obj->get($key);
         }
         return false;
@@ -62,7 +63,7 @@ class Memcache implements CacheInterfaces
      * @param bool $iszip
      * @param int $expire
      */
-    public function set($key,$value,$iszip=false,$expire = 3600)
+    public function set($key, $value, $iszip = false, $expire = 3600)
     {
         return $this->obj->add($key, $value, $iszip, $expire);
     }
@@ -71,10 +72,10 @@ class Memcache implements CacheInterfaces
      * 删除一个标识
      * @param $key
      */
-    public function delete($key,$timeout = 0)
+    public function delete($key, $timeout = 0)
     {
-        if(!empty($key)){
-            return $this->obj->delete($key,$timeout);
+        if (!empty($key)) {
+            return $this->obj->delete($key, $timeout);
         }
         return false;
     }
@@ -86,9 +87,9 @@ class Memcache implements CacheInterfaces
      * @param bool $iszip
      * @param int $expire
      */
-    public function replace($key,$value,$iszip=false,$expire = 3600)
+    public function replace($key, $value, $iszip = false, $expire = 3600)
     {
-        return $this->obj->replace($key,$value,$iszip,$expire);
+        return $this->obj->replace($key, $value, $iszip, $expire);
     }
 
     /**
@@ -116,9 +117,9 @@ class Memcache implements CacheInterfaces
      * @param int $number
      * @return mixed
      */
-    public function decrement($key,$number=1)
+    public function decrement($key, $number = 1)
     {
-        return $this->obj->decrement($key,$number);
+        return $this->obj->decrement($key, $number);
     }
 
     /**
@@ -127,9 +128,9 @@ class Memcache implements CacheInterfaces
      * @param int $number
      * @return mixed
      */
-    public function increment($key,$number=1)
+    public function increment($key, $number = 1)
     {
-        return $this->obj->increment($key,$number);
+        return $this->obj->increment($key, $number);
     }
 
     /**

@@ -28,9 +28,9 @@ class Db
      */
     private $dbType = [
 
-        'mysqli'  => 'Drive\Db\Mysqli',
+        'mysqli' => 'Drive\Db\Mysqli',
 
-        'pdo'   => 'Drive\Db\Pdo'
+        'pdo' => 'Drive\Db\Pdo'
     ];
 
     /**
@@ -49,9 +49,9 @@ class Db
      */
     public function init($configArr = [])
     {
-        if(is_array($configArr)){
-            foreach($configArr as $key=>$value){
-                $this->addlink($key,$value);
+        if (is_array($configArr)) {
+            foreach ($configArr as $key => $value) {
+                $this->addlink($key, $value);
             }
         }
     }
@@ -61,13 +61,13 @@ class Db
      * @param $name
      * @param $config
      */
-    private function addlink($name,$config)
+    private function addlink($name, $config)
     {
-        if(!empty($name) && is_array($config) && $config['connect']===true){
-            if(isset($config['dbType']) && isset($this->dbType[strtolower($config['dbType'])]) && isset($config['username'])){
-                if(!isset($this->link[$name])){
+        if (!empty($name) && is_array($config) && $config['connect'] === true) {
+            if (isset($config['dbType']) && isset($this->dbType[strtolower($config['dbType'])]) && isset($config['username'])) {
+                if (!isset($this->link[$name])) {
                     $this->db = \Framework\App::$app->get($this->dbType[strtolower($config['dbType'])]);
-                    $this->putlink($name,['obj' => $this->db,'link' => $this->db->connect($config)]);
+                    $this->putlink($name, ['obj' => $this->db, 'link' => $this->db->connect($config)]);
                 }
             }
         }
@@ -77,7 +77,7 @@ class Db
      * 压入连接
      * @param $link
      */
-    private function putlink($name,$link)
+    private function putlink($name, $link)
     {
         $this->link[$name] = $link;
     }
@@ -86,7 +86,8 @@ class Db
      * 获取所有建立的连接
      * @return array
      */
-    public function getlink(){
+    public function getlink()
+    {
         return $this->link;
     }
 
