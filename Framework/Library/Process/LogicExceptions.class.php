@@ -105,7 +105,14 @@ class LogicExceptions implements LogicExceptionsInterfaces
      */
     public function readErrorFile($error)
     {
-        ob_clean();
+        if (Running::$runMode == 'cli') {
+            $error_string = "\r\nPHP300FrameworkError:\r\nerror_messag:{$error['message']}";
+            if (isset($error['file'])) $error_string .= "\r\nerror_file:{$error['file']}";
+            if (isset($error['line'])) $error_string .= "\r\nerror_line:{$error['line']}";
+            die($error_string);
+        } else {
+            ob_clean();
+        }
         if (Running::$Debug === true) {
             header('HTTP/1.1 ' . Auxiliary::httpcode(500));
             if (isset($error['file'])) {

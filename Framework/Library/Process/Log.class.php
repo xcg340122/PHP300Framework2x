@@ -25,18 +25,18 @@ class Log implements LogInterfaces
      */
     private function Write($fileName, $Content, $count = 0)
     {
-        $fileLine = $fileName . '_' . date('Y-m-d', time()) . '(' . $count . ')';
+        $fileExt = $count > 0 ? '(' . $count . ')' : '';
+        $fileLine = $fileName . '_' . date('Y-m-d', time()) . $fileExt;
         $fileNames = $fileLine . $this->extend;
         if (file_exists($fileNames)) {
             $size = number_format(filesize($fileNames) / 1024 / 1024, 3);
-            if ($size > 5) {
+            if ($size > 3) {
                 $number = intval(substr($fileLine, -2, 1)) + 1;
                 $this->Write($fileName, $Content, $number);
             } else {
                 file_put_contents($fileNames, $Content, FILE_APPEND);
             }
         } else {
-            if($count == 0) $fileNames = str_replace('(0)','',$fileNames);
             file_put_contents($fileNames, $Content, FILE_APPEND);
         }
     }
@@ -46,6 +46,7 @@ class Log implements LogInterfaces
      * @param $LogPath
      * @param $fileName
      * @param $Log
+     * @return bool|mixed
      */
     public function Record($LogPath, $fileName, $Log)
     {
@@ -56,7 +57,9 @@ class Log implements LogInterfaces
             }
             $Log = "[" . date('Y-m-d H:i:s') . "]\r\n$Log\r\n------------------\r\n\r\n ";
             $this->Write($LogPath . '/' . $fileName, $Log);
+            return true;
         }
+        return false;
     }
 
 }

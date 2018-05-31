@@ -192,3 +192,57 @@ function Error($msg = '操作异常', $url = '', $seconds = 3, $title = '系统�
         'describe' => $msg
     ]);
 }
+
+/**
+ * Session操作
+ * @return mixed
+ */
+function Session()
+{
+    $Session = \Framework\App::$app->get('Session');
+    $Session->start();
+    return $Session;
+}
+
+/**
+ * 操作cookie
+ * @param string $name key名称
+ * @param string $val value值
+ * @param string $expire 过期时间
+ * @return bool|null
+ */
+function Cookie($name = '', $val = '', $expire = '0')
+{
+    $prefix = 'PHP300_';
+    if ($name === '') {
+        return $_COOKIE;
+    }
+    if ($name != '' && $val === '') {
+        return (!empty($_COOKIE[$prefix . $name])) ? ($_COOKIE[$prefix . $name]) : (NULL);
+    }
+    if ($name && $val) {
+        return setcookie($prefix . $name, $val, $expire);
+    }
+    if ($name && is_null($val)) {
+        return setcookie($prefix . $name, $val, time() - 1);
+    }
+    if (is_null($name) && is_null($val)) {
+        $_COOKIE = NULL;
+    }
+    return false;
+}
+
+/**
+ * 操作日志
+ * @param string $logs 日志内容
+ * @param string $name 日志文件名称
+ * @param string $path 日志文件文件夹
+ * @return bool
+ */
+function Logs($logs = '', $name = 'logs', $path = 'MyLog')
+{
+    if (!empty($logs)) {
+        return \Framework\App::$app->get('Log')->Record($path, $name, $logs);
+    }
+    return false;
+}

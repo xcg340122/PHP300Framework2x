@@ -36,7 +36,7 @@ return [
         'dbType' => 'mysqli',
 
         /** 是否连接数据库 */
-        'connect' => true
+        'connect' => false
     ]
 
 ];

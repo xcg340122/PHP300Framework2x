@@ -16,6 +16,9 @@ class Running
      */
     static public $iserror = false;
 
+
+    static public $runMode = 'cgi';
+
     /**
      * 开发模式(true=>调试模式,false=>线上模式)
      * @var bool
@@ -55,8 +58,8 @@ class Running
             '_F' => Visit::$param['Function'],
             '_T' => time()
         ];
-        foreach ($define as $key => $value){
-            define($key,$value);
+        foreach ($define as $key => $value) {
+            define($key, $value);
         }
     }
 

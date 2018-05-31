@@ -19,16 +19,19 @@ class App
      * @var Object
      */
     static public $extend;
+
     /**
      * 应用实例
      * @var Object
      */
     static public $app;
+
     /**
      * 框架路径
      * @var String
      */
     public $corePath;
+
     /**
      * 钩子列表
      * @var array
@@ -112,6 +115,10 @@ class App
      */
     public function run()
     {
+        Running::$runMode = php_sapi_name();
+        if(Running::$runMode == 'cli'){
+            Visit::setCliParam();
+        }
         $object = Visit::mergeParam();
 
         $function = Visit::getfunction();
@@ -128,7 +135,6 @@ class App
                 'message' => "[{$function}] 方法不存在!"
             ]);
         }
-
         $this->get('Running')->endRecord();
     }
 }

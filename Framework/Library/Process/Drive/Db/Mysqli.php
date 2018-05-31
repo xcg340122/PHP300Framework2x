@@ -148,7 +148,7 @@ class Mysqli implements DbInterfaces
     public function table($tabName = '')
     {
         if (!empty($tabName)) {
-            $this->tableName = $tabName;
+            $this->tableName = '`'.$tabName.'`';
             return $this;
         } else {
             \Framework\App::$app->get('LogicExceptions')->readErrorFile([
@@ -250,18 +250,38 @@ class Mysqli implements DbInterfaces
 
     /**
      * 执行SQL
-     * @param string $sql
-     * @return mixed
+     * @param string $queryString
+     * @param bool $select
+     * @return $this|bool|\mysqli_result
      */
     public function query($queryString = '', $select = false)
     {
         if ($this->link != null) {
             $this->queryId = mysqli_query($this->link, $queryString);
-            $status = $this->queryId !== false ? 'success' : 'error';
-            \Framework\App::$app->get('Log')->Record(\Framework\Library\Process\Running::$framworkPath . '/Project/Runtime/Datebase', 'sql', "[{$status}] " . $queryString);
-            if ($this->startsWith(strtolower($queryString), "select") && $select === false) {
-                $this->result = mysqli_fetch_all($this->queryId, MYSQLI_ASSOC);
-                return $this;
+
+            if ($this->queryId === false) {
+                $status = 'error';
+                $errormsg = mysqli_error($this->link);
+            } else {
+                $status = 'success';
+            }
+            $Logs = "[{$status}] " . $queryString;
+            if (isset($errormsg)) {
+                $Logs .= "\r\n[message] " . $errormsg;
+            }
+            \Framework\App::$app->get('Log')->Record(\Framework\Library\Process\Running::$framworkPath . '/Project/Runtime/Datebase', 'sql', $Logs);
+            if ($this->queryId === false) {
+                $message = $errormsg . ' (SQL：' . $queryString . ')';
+                \Framework\App::$app->get('LogicExceptions')->readErrorFile([
+                    'type' => 'DataBase Error',
+                    'message' => $message
+                ]);
+
+            } else {
+                if ($this->startsWith(strtolower($queryString), "select") && $select === false) {
+                    $this->result = mysqli_fetch_all($this->queryId, MYSQLI_ASSOC);
+                    return $this;
+                }
             }
             return $this->queryId;
         } else {

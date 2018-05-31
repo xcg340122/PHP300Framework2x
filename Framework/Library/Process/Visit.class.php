@@ -84,4 +84,26 @@ class Visit implements VisitInterfaces
         }
         return self::$param['Function'];
     }
+
+    /**
+     * 设定CLI模式参数
+     */
+    static function setCliParam()
+    {
+        $param = $_SERVER['argv'];
+        if (count($param) > 3) {
+            foreach ($param as $key => $value) {
+                if ($key > 0) {
+                    $param[($key - 1)] = $value;
+                }
+            }
+            unset($param[3]);
+            \Framework\App::$app->get('Visit')->bind($param);
+        } else {
+            if (count($param) === 1) {
+                return true;
+            }
+            die('PHP300::Inadequacy of parameters!');
+        }
+    }
 }

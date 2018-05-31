@@ -16,7 +16,13 @@ return [
         'error_switch' => true,
 
         /**
-         * 记录错误级别
+         * 记录错误级别(E_ERROR|E_WARNING|E_PARSE)
+         * 全部错误(E_ALL)
+         * 致命错误(E_ERROR)
+         * 运行警告(E_WARNING)
+         * 语法错误(E_PARSE)
+         * 其他通知(E_NOTICE)
+         * 更多错误级别请参照(http://php.net/manual/zh/errorfunc.constants.php)
          */
         'error_level' => 'E_ALL'
     ],
@@ -32,7 +38,13 @@ return [
         'display_switch' => true,
 
         /**
-         * 显示错误的级别
+         * 显示错误的级别(E_ERROR|E_WARNING|E_PARSE)
+         * 全部错误(E_ALL)
+         * 致命错误(E_ERROR)
+         * 运行警告(E_WARNING)
+         * 语法错误(E_PARSE)
+         * 其他通知(E_NOTICE)
+         * 更多错误级别请参照(http://php.net/manual/zh/errorfunc.constants.php)
          */
         'display_level' => 'E_ALL'
     ],
@@ -73,12 +85,12 @@ return [
         /**
          * 模板左标记
          */
-        'left_delimiter' => '{',
+        'left_delimiter' => '_{',
 
         /**
          * 模板右标记
          */
-        'right_delimiter' => '}',
+        'right_delimiter' => '}_',
 
         /**
          * 是否启用缓存

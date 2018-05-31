@@ -198,10 +198,24 @@ class Pdo implements DbInterfaces
      */
     private function handleres($sql, $iserror = false, $ex = [])
     {
-        $status = $iserror === false ? 'success' : 'error';
-        \Framework\App::$app->get('Log')->Record(\Framework\Library\Process\Running::$framworkPath . '/Project/Runtime/Datebase', 'sql', "[{$status}] " . $sql);
         if ($iserror) {
-            exit($this->dbErrorMsg . $ex->getMessage());
+            $status = 'error';
+            $errormsg = $ex->getMessage();
+        } else {
+            $status = 'success';
+        }
+        $Logs = "[{$status}] " . $sql;
+        if (isset($errormsg)) {
+            $Logs .= "\r\n[message] " . $errormsg;
+        }
+
+        \Framework\App::$app->get('Log')->Record(\Framework\Library\Process\Running::$framworkPath . '/Project/Runtime/Datebase', 'sql', $Logs);
+        if ($iserror) {
+            $message = $errormsg . ' (SQL：' . $sql . ')';
+            \Framework\App::$app->get('LogicExceptions')->readErrorFile([
+                'type' => 'DataBase Error',
+                'message' => $message
+            ]);
         }
     }
 
@@ -212,8 +226,8 @@ class Pdo implements DbInterfaces
      */
     public function table($tableName = '')
     {
-        if (!empty($tabName)) {
-            $this->tableName = $tabName;
+        if (!empty($tableName)) {
+            $this->tableName = '`' . $tableName . '`';
             return $this;
         } else {
             \Framework\App::$app->get('LogicExceptions')->readErrorFile([
