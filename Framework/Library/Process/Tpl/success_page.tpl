@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <title>成功</title>
+    <title>{$data.title}</title>
     <style>
         * {
             margin: 0;

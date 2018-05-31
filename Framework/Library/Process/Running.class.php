@@ -44,6 +44,23 @@ class Running
     }
 
     /**
+     * 预定义常量信息
+     */
+    static public function setconstant()
+    {
+        $define = [
+            'RES' => Auxiliary::getPublic(),
+            '_P' => Visit::$param['Project'],
+            '_C' => Visit::$param['Controller'],
+            '_F' => Visit::$param['Function'],
+            '_T' => time()
+        ];
+        foreach ($define as $key => $value){
+            define($key,$value);
+        }
+    }
+
+    /**
      * 设定开发模式
      * @param bool $status
      */

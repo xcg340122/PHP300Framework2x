@@ -31,18 +31,28 @@ function dump($vars, $label = '', $return = false)
  * @param null $config 操作数据的配置名称
  * @return mixed
  */
-function Db($config = null)
+function Db($table = '', $config = null)
 {
+    if (empty($table)) {
+        \Framework\App::$app->get('LogicExceptions')->readErrorFile([
+            'message' => "您操作了数据库,但是您没有指定操作的表名称!"
+        ]);
+    }
     $Db = \Framework\App::$app->get('Db')->getlink();
     if (is_array($Db) && count($Db) > 0) {
         if (is_null($config)) {
             $link = current($Db);
-            return $link['obj']->setlink($link['link']);
+            $link = $link['obj']->setlink($link['link']);
         }
-        if (!empty($Db[$config])) {
-            return $Db[$config]['obj']->setlink($Db[$config]['link']);
-        }
+        if (!empty($Db[$config])) $link = $Db[$config]['obj']->setlink($Db[$config]['link']);
+        if (isset($link)) return $link->table($table);
+        return false;
+    } else {
+        \Framework\App::$app->get('LogicExceptions')->readErrorFile([
+            'message' => "您操作了数据库,但是没有发现有效的数据库配置!"
+        ]);
     }
+    return null;
 }
 
 /**
@@ -84,11 +94,10 @@ function View($fileName = '', $dir = '')
     }
     if (!file_exists($fileName)) {
         $fileName = str_replace('\\', '/', $fileName);
-        $error = [
+        \Framework\App::$app->get('LogicExceptions')->readErrorFile([
             'file' => __FILE__,
             'message' => "[$fileName] 请检查您的模板是否存在!",
-        ];
-        \Framework\App::$app->get('LogicExceptions')->readErrorFile($error);
+        ]);
     }
     $Object->set($fileName);
     return $Object;
@@ -137,4 +146,49 @@ function extend($name, $type = 0)
         return $Extend->addPackage($name);
     }
     return $Extend->addClass($name);
+}
+
+/**
+ * 获取系统应用实例对象
+ * @return \Framework\App|Object
+ */
+function getapp()
+{
+    return \Framework\App::$app;
+}
+
+/**
+ * 展示成功状态页
+ * @param string $msg 提示内容
+ * @param string $url 跳转的地址
+ * @param int $seconds 跳转的秒数
+ * @param string $title 提示页标题
+ */
+function Success($msg = '操作成功', $url = '', $seconds = 3, $title = '系统提示')
+{
+    \Framework\App::$app->get('LogicExceptions')->displayed('success', [
+        'title' => $title,
+        'second' => $seconds,
+        'url' => $url,
+        'message' => $title,
+        'describe' => $msg
+    ]);
+}
+
+/**
+ * 展示成功状态页
+ * @param string $msg 提示内容
+ * @param string $url 跳转的地址
+ * @param int $seconds 跳转的秒数
+ * @param string $title 提示页标题
+ */
+function Error($msg = '操作异常', $url = '', $seconds = 3, $title = '系统提示')
+{
+    \Framework\App::$app->get('LogicExceptions')->displayed('error', [
+        'title' => $title,
+        'second' => $seconds,
+        'url' => $url,
+        'message' => $title,
+        'describe' => $msg
+    ]);
 }

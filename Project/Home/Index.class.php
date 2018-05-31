@@ -9,15 +9,15 @@ namespace App\Home;
  */
 class Index
 {
-
+    /**
+     * 默认首页
+     * @return mixed
+     */
     public function index()
     {
         $View = View('Home/index');
 
-        return $View->data([
-            'show' => 'PHP300Framework - 想象无极限',
-            'describe' => '梦还是要有的万一实现了呢',
-            'version' => '2.2.2'
+        return $View->data(['show' => 'PHP300Framework - 想象无极限', 'describe' => '每个人的生命都是一只小船，梦想是小船的风帆。', 'version' => '2.3.0'
         ])->get();
     }
 }

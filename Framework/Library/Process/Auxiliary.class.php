@@ -217,7 +217,6 @@ class Auxiliary
         }
     }
 
-
     /**
      * 判断是否为SSL连接
      * @return bool

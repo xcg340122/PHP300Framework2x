@@ -2,7 +2,7 @@
 
 namespace Framework\Library\Process\Drive\Db;
 
-use \Framework\Library\Interfaces\DbInterface as DbInterfaces;
+use Framework\Library\Interfaces\DbInterface as DbInterfaces;
 
 /**
  * PDO Driver
@@ -12,41 +12,35 @@ class Pdo implements DbInterfaces
 {
 
     /**
-     * 实例对象
-     * @var
-     */
-    protected $pdo;
-
-    /**
-     * 结果集
-     * @var bool
-     */
-    protected $result = false;
-
-    /**
-     * 影响条数
-     * @var
-     */
-    protected $total;
-
-    /**
      * 数据错误信息
      * @var string
      */
     public $dbErrorMsg = 'SQL IN WRONG: ';
-
-    /**
-     * 操作表名
-     * @var null
-     */
-    protected $tableName = NULL;
-
     /**
      * 获取方式
      * @var int
      */
     public $fetchMethod = \PDO::FETCH_OBJ;
-
+    /**
+     * 实例对象
+     * @var
+     */
+    protected $pdo;
+    /**
+     * 结果集
+     * @var bool
+     */
+    protected $result = false;
+    /**
+     * 影响条数
+     * @var
+     */
+    protected $total;
+    /**
+     * 操作表名
+     * @var null
+     */
+    protected $tableName = NULL;
     /**
      * debug
      * @var array
@@ -154,19 +148,6 @@ class Pdo implements DbInterfaces
         return $this->total;
     }
 
-
-    /**
-     * If string starts with
-     *
-     * @param $haystack
-     * @param $needle
-     * @return bool
-     */
-    protected function startsWith($haystack, $needle)
-    {
-        return $needle === "" || strrpos($haystack, $needle, -strlen($haystack)) !== FALSE;
-    }
-
     /**
      * 执行SQL
      * @param $queryString
@@ -197,6 +178,32 @@ class Pdo implements DbInterfaces
         return $this;
     }
 
+    /**
+     * If string starts with
+     *
+     * @param $haystack
+     * @param $needle
+     * @return bool
+     */
+    protected function startsWith($haystack, $needle)
+    {
+        return $needle === "" || strrpos($haystack, $needle, -strlen($haystack)) !== FALSE;
+    }
+
+    /**
+     * 处理结果
+     * @param $sql
+     * @param bool $iserror
+     * @param array $ex
+     */
+    private function handleres($sql, $iserror = false, $ex = [])
+    {
+        $status = $iserror === false ? 'success' : 'error';
+        \Framework\App::$app->get('Log')->Record(\Framework\Library\Process\Running::$framworkPath . '/Project/Runtime/Datebase', 'sql', "[{$status}] " . $sql);
+        if ($iserror) {
+            exit($this->dbErrorMsg . $ex->getMessage());
+        }
+    }
 
     /**
      * 选择数据表
@@ -209,14 +216,12 @@ class Pdo implements DbInterfaces
             $this->tableName = $tabName;
             return $this;
         } else {
-            $error = [
+            \Framework\App::$app->get('LogicExceptions')->readErrorFile([
                 'file' => __FILE__,
                 'message' => 'Need to fill in Table Value!',
-            ];
-            \Framework\App::$app->get('LogicExceptions')->readErrorFile($error);
+            ]);
         }
     }
-
 
     /**
      * 查询数据
@@ -282,6 +287,50 @@ class Pdo implements DbInterfaces
         }
     }
 
+    /**
+     * 条件构造
+     * @param array $whereData
+     * @return string
+     */
+    private function structureWhere($whereData = [])
+    {
+        $where = ' WHERE ';
+        if (is_array($whereData)) {
+            foreach ($whereData as $key => $value) {
+                if (is_array($value) && count($value) > 1) {
+                    $value[1] = addslashes($value[1]);
+                    switch (strtolower($value[0])) {
+                        case 'in':
+                            $where .= $key . ' IN(' . $value[1] . ') AND ';
+                            break;
+                        case 'string':
+                            $where .= $key . $value[1] . ' AND ';
+                            break;
+                        default:
+                            $value[1] = is_numeric($value[1]) ? $value[1] : "'" . $value[1] . "'";
+                            $where .= $key . ' ' . $value[0] . ' ' . $value[1] . ' AND ';
+                            break;
+                    }
+                } else {
+                    $value = addslashes($value);
+                    $value = is_numeric($value) ? $value : "'" . $value . "'";
+                    $where .= $key . '=' . $value . ' AND ';
+                }
+            }
+            return rtrim($where, '. AND ');
+        }
+        return $where . $whereData;
+    }
+
+    /**
+     * 插入数据(别名)
+     * @param array $dataArray
+     * @return bool
+     */
+    public function add($dataArray = [])
+    {
+        return $this->insert($dataArray);
+    }
 
     /**
      * 插入数据
@@ -320,13 +369,14 @@ class Pdo implements DbInterfaces
     }
 
     /**
-     * 插入数据(别名)
+     * 修改数据(别名)
      * @param array $dataArray
+     * @param string $where
      * @return bool
      */
-    public function add($dataArray = [])
+    public function save($dataArray = [], $where = '')
     {
-        return $this->insert($dataArray);
+        return $this->update($dataArray, $where);
     }
 
     /**
@@ -363,14 +413,13 @@ class Pdo implements DbInterfaces
     }
 
     /**
-     * 修改数据(别名)
-     * @param array $dataArray
-     * @param string $where
+     * 删除数据(别名)
+     * @param array $where
      * @return bool
      */
-    public function save($dataArray = [], $where = '')
+    public function del($where = [])
     {
-        return $this->update($dataArray, $where);
+        return $this->delete($where);
     }
 
     /**
@@ -394,66 +443,6 @@ class Pdo implements DbInterfaces
             return $this->total;
         } catch (\PDOException $ex) {
             $this->handleres($queryString, true, $ex);
-        }
-    }
-
-    /**
-     * 删除数据(别名)
-     * @param array $where
-     * @return bool
-     */
-    public function del($where = [])
-    {
-        return $this->delete($where);
-    }
-
-    /**
-     * 条件构造
-     * @param array $whereData
-     * @return string
-     */
-    private function structureWhere($whereData = [])
-    {
-        $where = ' WHERE ';
-        if (is_array($whereData)) {
-            foreach ($whereData as $key => $value) {
-                if (is_array($value) && count($value) > 1) {
-                    $value[1] = addslashes($value[1]);
-                    switch (strtolower($value[0])) {
-                        case 'in':
-                            $where .= $key . ' IN(' . $value[1] . ') AND ';
-                            break;
-                        case 'string':
-                            $where .= $key . $value[1] . ' AND ';
-                            break;
-                        default:
-                            $value[1] = is_numeric($value[1]) ? $value[1] : "'" . $value[1] . "'";
-                            $where .= $key . ' ' . $value[0] . ' ' . $value[1] . ' AND ';
-                            break;
-                    }
-                } else {
-                    $value = addslashes($value);
-                    $value = is_numeric($value) ? $value : "'" . $value . "'";
-                    $where .= $key . '=' . $value . ' AND ';
-                }
-            }
-            return rtrim($where, '. AND ');
-        }
-        return $where . $whereData;
-    }
-
-    /**
-     * 处理结果
-     * @param $sql
-     * @param bool $iserror
-     * @param array $ex
-     */
-    private function handleres($sql, $iserror = false, $ex = [])
-    {
-        $status = $iserror === false ? 'success' : 'error';
-        \Framework\App::$app->get('Log')->Record(\Framework\Library\Process\Running::$framworkPath . '/Project/Runtime/Datebase', 'sql', "[{$status}] " . $sql);
-        if ($iserror) {
-            exit($this->dbErrorMsg . $ex->getMessage());
         }
     }
 

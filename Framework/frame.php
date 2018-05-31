@@ -2,6 +2,7 @@
 
 namespace Framework;
 
+use Framework\Library\Process\Running;
 use Framework\Library\Process\Structure;
 use Framework\Library\Process\Visit;
 
@@ -14,28 +15,25 @@ class App
 {
 
     /**
-     * 框架路径
-     * @var String
-     */
-    public $corePath;
-
-    /**
-     * 钩子列表
-     * @var array
-     */
-    private $hook = [];
-
-    /**
      * 扩展实例
      * @var Object
      */
     static public $extend;
-
     /**
      * 应用实例
      * @var Object
      */
     static public $app;
+    /**
+     * 框架路径
+     * @var String
+     */
+    public $corePath;
+    /**
+     * 钩子列表
+     * @var array
+     */
+    private $hook = [];
 
     /**
      * App constructor.
@@ -47,22 +45,6 @@ class App
         $this->corePath = is_dir($Path) ? $Path . '/Framework/' : __DIR__ . '/';
         $this->inBatch(['Running', 'Auxiliary', 'Structure', 'Config', 'Log', 'LogicExceptions']);
         $this->get('Running')->startRecord();
-    }
-
-    /**
-     * 处理实例化实现过程
-     * @param $Pointer
-     * @return mixed
-     */
-    public function inProcess($Pointer)
-    {
-        $PNamespace = "\Framework\Library\Process\\{$Pointer}";
-        $Path = $this->corePath . 'Library/Process/' . str_replace('\\', '/', $Pointer);
-        $Path .= strpos($Pointer, 'Drive') !== false ? '.php' : '.class.php';
-        if (file_exists($Path)) {
-            require_once $Path;
-            return new $PNamespace();
-        }
     }
 
     /**
@@ -79,15 +61,6 @@ class App
     }
 
     /**
-     * 寄存实例对象
-     * @param $Obj
-     */
-    public function put($Name, $Obj)
-    {
-        if (!empty($Name) && is_object($Obj) && empty($this->hook[$Name])) $this->hook[$Name] = $Obj;
-    }
-
-    /**
      * 获取寄存数据
      * @param $Name
      * @return mixed
@@ -97,6 +70,31 @@ class App
         if (!empty($this->hook[$Name]) && is_object($this->hook[$Name])) return $this->hook[$Name];
         $this->put($Name, $this->inProcess($Name));
         return $this->hook[$Name];
+    }
+
+    /**
+     * 寄存实例对象
+     * @param $Obj
+     */
+    public function put($Name, $Obj)
+    {
+        if (!empty($Name) && is_object($Obj) && empty($this->hook[$Name])) $this->hook[$Name] = $Obj;
+    }
+
+    /**
+     * 处理实例化实现过程
+     * @param $Pointer
+     * @return mixed
+     */
+    public function inProcess($Pointer)
+    {
+        $PNamespace = "\Framework\Library\Process\\{$Pointer}";
+        $Path = $this->corePath . 'Library/Process/' . str_replace('\\', '/', $Pointer);
+        $Path .= strpos($Pointer, 'Drive') !== false ? '.php' : '.class.php';
+        if (file_exists($Path)) {
+            require_once $Path;
+            return new $PNamespace();
+        }
     }
 
     /**
@@ -121,14 +119,14 @@ class App
         $app = new $object();
 
         if (method_exists($app, $function)) {
+            Running::setconstant();
             $this->get('ReturnHandle')->Output($app->$function());
 
         } else {
-            $error = [
+            $this->get('LogicExceptions')->readErrorFile([
                 'file' => Structure::$endfile,
                 'message' => "[{$function}] 方法不存在!"
-            ];
-            $this->get('LogicExceptions')->readErrorFile($error);
+            ]);
         }
 
         $this->get('Running')->endRecord();

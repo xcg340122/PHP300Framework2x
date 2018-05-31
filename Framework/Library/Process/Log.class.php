@@ -36,6 +36,7 @@ class Log implements LogInterfaces
                 file_put_contents($fileNames, $Content, FILE_APPEND);
             }
         } else {
+            if($count == 0) $fileNames = str_replace('(0)','',$fileNames);
             file_put_contents($fileNames, $Content, FILE_APPEND);
         }
     }

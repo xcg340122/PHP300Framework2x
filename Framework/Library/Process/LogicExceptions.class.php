@@ -7,8 +7,7 @@ namespace Framework\Library\Process;
  * Class LogicExceptions
  * @package Framework\Library\Process
  */
-use Framework\App;
-use \Framework\Library\Interfaces\LogicExceptionsInterface as LogicExceptionsInterfaces;
+use Framework\Library\Interfaces\LogicExceptionsInterface as LogicExceptionsInterfaces;
 
 class LogicExceptions implements LogicExceptionsInterfaces
 {
