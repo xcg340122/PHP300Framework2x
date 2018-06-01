@@ -1,4 +1,4 @@
-PHP300framework2.0 -想象无极限
+PHP300framework2x -想象无极限
 ====
 [![](https://img.shields.io/badge/version-2.0-green.svg)](http://framework.php300.cn)
 [![](https://img.shields.io/badge/composer-2.0-brightgreen.svg)](https://packagist.org/packages/php300/framework)
@@ -9,14 +9,14 @@ PHP300framework2.0 -想象无极限
 这里展示部分文档,更多介绍请详见：[在线手册](http://api2.php300.cn)
 
 ### 看点
-* MVC编程
-* 异常处理
-* 高速运行机制
-* 自由通用配置
-* 支持PDO和MYSQLI两种数据操作选择
-* 支持Redis和Memcache缓存
+* MVC开发框架
+* 函数助手方便快捷
+* 支持CLI模式运行
+* 核心容器加载处理
+* 自动JSON编码
 * 自定义高可用扩展方法
-* Composer随意DIY
+* `Composer`随意`DIY`
 * 自定义路由支持
+* 数据库驱动快速操作
 * 分离式入口更安全
-* 免费开源,可开发商业产品
+* 高速缓存扩展支持
