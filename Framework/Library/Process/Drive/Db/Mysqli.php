@@ -277,11 +277,10 @@ class Mysqli implements DbInterfaces
                     'message' => $message
                 ]);
 
-            } else {
-                if ($this->startsWith(strtolower($queryString), "select") && $select === false) {
-                    $this->result = mysqli_fetch_all($this->queryId, MYSQLI_ASSOC);
-                    return $this;
-                }
+            }
+            if ($this->startsWith(strtolower($queryString), "select") && $select === false) {
+                $this->result = mysqli_fetch_all($this->queryId, MYSQLI_ASSOC);
+                return $this;
             }
             return $this->queryId;
         } else {

@@ -2,7 +2,7 @@
 
 namespace Framework\Library\Process;
 
-use \Framework\Library\Interfaces\VisitInterface as VisitInterfaces;
+use Framework\Library\Interfaces\VisitInterface as VisitInterfaces;
 
 /**
  * 访问处理器
@@ -25,8 +25,56 @@ class Visit implements VisitInterfaces
     public function __construct()
     {
         $VisitConfig = \Framework\App::$app->get('Config')->get('frame');
-
         if (isset($VisitConfig['Visit'])) self::$param = $VisitConfig['Visit'];
+    }
+
+    /**
+     * 合并访问对象
+     * @return string
+     */
+    static public function mergeParam()
+    {
+        \Framework\App::$app->get('Router');
+        return self::$param['namespace'] . '\\' . ucwords(self::$param['Project']) . '\\' . ucwords
+            (self::$param['Controller']);
+    }
+
+    /**
+     * 获取对象方法
+     * @return mixed
+     */
+    static public function getfunction()
+    {
+        if (empty(self::$param['Function'])) {
+            \Framework\App::$app->get('LogicExceptions')->readErrorFile([
+                'file' => Structure::$endfile,
+                'message' => '无法执行空方法!'
+            ]);
+        }
+        return self::$param['Function'];
+    }
+
+    /**
+     * 设定CLI模式参数
+     * @return bool
+     */
+    static function setCliParam()
+    {
+        $param = $_SERVER['argv'];
+        if (count($param) > 3) {
+            foreach ($param as $key => $value) {
+                if ($key > 0) {
+                    $param[($key - 1)] = $value;
+                }
+            }
+            unset($param[3]);
+            \Framework\App::$app->get('Visit')->bind($param);
+        } else {
+            if (count($param) === 1) {
+                return true;
+            }
+            die('PHP300::Inadequacy of parameters!');
+        }
     }
 
     /**
@@ -54,56 +102,6 @@ class Visit implements VisitInterfaces
             if (isset(self::$param['Function'])) {
                 self::$param['Function'] = str_replace(self::$param['extend'], '', self::$param['Function']);
             }
-        }
-    }
-
-    /**
-     * 合并访问对象
-     * @return string
-     */
-    static public function mergeParam()
-    {
-        \Framework\App::$app->get('Router');
-
-        return self::$param['namespace'] . '\\' . ucwords(self::$param['Project']) . '\\' . ucwords
-            (self::$param['Controller']);
-    }
-
-    /**
-     * 获取对象方法
-     * @return mixed
-     */
-    static public function getfunction()
-    {
-        if (empty(self::$param['Function'])) {
-            $error = [
-                'file' => Structure::$endfile,
-                'message' => '无法执行空方法!'
-            ];
-            \Framework\App::$app->get('LogicExceptions')->readErrorFile($error);
-        }
-        return self::$param['Function'];
-    }
-
-    /**
-     * 设定CLI模式参数
-     */
-    static function setCliParam()
-    {
-        $param = $_SERVER['argv'];
-        if (count($param) > 3) {
-            foreach ($param as $key => $value) {
-                if ($key > 0) {
-                    $param[($key - 1)] = $value;
-                }
-            }
-            unset($param[3]);
-            \Framework\App::$app->get('Visit')->bind($param);
-        } else {
-            if (count($param) === 1) {
-                return true;
-            }
-            die('PHP300::Inadequacy of parameters!');
         }
     }
 }

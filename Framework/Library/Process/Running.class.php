@@ -16,7 +16,10 @@ class Running
      */
     static public $iserror = false;
 
-
+    /**
+     * 运行模式
+     * @var string
+     */
     static public $runMode = 'cgi';
 
     /**

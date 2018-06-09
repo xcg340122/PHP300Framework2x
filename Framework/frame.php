@@ -98,6 +98,7 @@ class App
             require_once $Path;
             return new $PNamespace();
         }
+        return false;
     }
 
     /**
@@ -106,7 +107,7 @@ class App
      */
     public function __invoke()
     {
-        $this->inBatch(['Visit', 'ReturnHandle', 'Db', 'Extend']);
+        $this->inBatch(['Visit', 'Db', 'Extend']);
         return $this;
     }
 
@@ -116,19 +117,12 @@ class App
     public function run()
     {
         Running::$runMode = php_sapi_name();
-        if(Running::$runMode == 'cli'){
-            Visit::setCliParam();
-        }
+        if (Running::$runMode == 'cli') Visit::setCliParam();
         $object = Visit::mergeParam();
-
         $function = Visit::getfunction();
-
         $app = new $object();
-
         if (method_exists($app, $function)) {
-            Running::setconstant();
             $this->get('ReturnHandle')->Output($app->$function());
-
         } else {
             $this->get('LogicExceptions')->readErrorFile([
                 'file' => Structure::$endfile,

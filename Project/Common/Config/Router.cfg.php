@@ -7,6 +7,7 @@ return [
 
     /**
      * 演示路由
+     * 这里的实例名称和控制器名称要严格按照大小写
      */
     '/Home/Index/test' => function () {
 

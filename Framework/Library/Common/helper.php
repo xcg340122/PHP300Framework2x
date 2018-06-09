@@ -33,11 +33,6 @@ function dump($vars, $label = '', $return = false)
  */
 function Db($table = '', $config = null)
 {
-    if (empty($table)) {
-        \Framework\App::$app->get('LogicExceptions')->readErrorFile([
-            'message' => "您操作了数据库,但是您没有指定操作的表名称!"
-        ]);
-    }
     $Db = \Framework\App::$app->get('Db')->getlink();
     if (is_array($Db) && count($Db) > 0) {
         if (is_null($config)) {
@@ -45,7 +40,10 @@ function Db($table = '', $config = null)
             $link = $link['obj']->setlink($link['link']);
         }
         if (!empty($Db[$config])) $link = $Db[$config]['obj']->setlink($Db[$config]['link']);
-        if (isset($link)) return $link->table($table);
+        if (isset($link)) {
+            if (empty($table)) return $link;
+            return $link->table($table);
+        }
         return false;
     } else {
         \Framework\App::$app->get('LogicExceptions')->readErrorFile([

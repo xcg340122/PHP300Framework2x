@@ -188,8 +188,7 @@ class LogicExceptions implements LogicExceptionsInterfaces
             foreach ($errorList as $key => $value) {
                 $errorList[$key] = trim($value);
             }
-            if (in_array($errorlevel, $errorList)) return true;
-            return false;
+            return in_array($errorlevel, $errorList);
         }
         return false;
     }

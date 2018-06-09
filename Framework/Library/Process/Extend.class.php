@@ -62,19 +62,6 @@ class Extend
     }
 
     /**
-     * 加入新的扩展类
-     * @param string $ClassName
-     * @return bool
-     */
-    public function addClass($ClassName = '')
-    {
-        if (!empty($ClassName) && file_exists($this->ClassPath . $ClassName)) {
-            include_once $this->ClassPath . $ClassName;
-        }
-        return false;
-    }
-
-    /**
      * 获取扩展信息
      * @param $file
      * @return mixed
@@ -85,12 +72,16 @@ class Extend
     }
 
     /**
-     * 获取zip包信息
+     * 返回包名
+     * @param $Package
+     * @return bool|mixed
      */
-    private function getPackageInfo($infoPath = '')
+    private function getPackageName($Package)
     {
-        if (file_exists($infoPath)) {
-            return include $infoPath;
+        $extension = self::get_extension($Package);
+        $path = explode('Package/', $Package);
+        if (isset($path[1])) {
+            return str_replace(array('.', $extension), '', $path[1]);
         }
         return false;
     }
@@ -115,18 +106,16 @@ class Extend
                 $zip->close();
                 $this->iszipload($folder, $Packagezip);
             } else {
-                $error = [
+                \Framework\App::$app->get('LogicExceptions')->readErrorFile([
                     'file' => $zipfile,
                     'message' => "'{$zipfile}' 读取文件失败!"
-                ];
-                \Framework\App::$app->get('LogicExceptions')->readErrorFile($error);
+                ]);
             }
         } else {
-            $error = [
+            \Framework\App::$app->get('LogicExceptions')->readErrorFile([
                 'file' => $zipfile,
                 'message' => "你需要先启动 PHP-ZipArchive 扩展!"
-            ];
-            \Framework\App::$app->get('LogicExceptions')->readErrorFile($error);
+            ]);
         }
         return true;
     }
@@ -142,24 +131,35 @@ class Extend
         $autoload = $folder . '/' . $Packagezip . '/autoload.php';
         if (file_exists($autoload)) {
             include_once $autoload;
-            $this->Extendbox[$Packagezip] = $this->getPackageInfo($folder . $Packagezip . '/info.php');
-            file_put_contents($folder . '/' . $Packagezip . '/marked.txt', 'This is an automatically unpacked package. Please do not manually modify or delete it!  - PHP300Framework2.0');
+            $this->Extendbox[$Packagezip] = $this->getPackageInfo($folder . '/' . $Packagezip . '/info.php');
+            file_put_contents($folder . '/' . $Packagezip . '/marked.txt', 'This is an automatically unpacked package. Please do not manually modify or delete it!  - PHP300Framework2x');
             return true;
         }
         return false;
     }
 
     /**
-     * 返回包名
-     * @param $Package
+     * 获取zip包信息
+     * @param string $infoPath
      * @return bool|mixed
      */
-    private function getPackageName($Package)
+    private function getPackageInfo($infoPath = '')
     {
-        $extension = self::get_extension($Package);
-        $path = explode('Package/', $Package);
-        if (isset($path[1])) {
-            return str_replace(array('.', $extension), '', $path[1]);
+        if (file_exists($infoPath)) {
+            return include $infoPath;
+        }
+        return false;
+    }
+
+    /**
+     * 加入新的扩展类
+     * @param string $ClassName
+     * @return bool
+     */
+    public function addClass($ClassName = '')
+    {
+        if (!empty($ClassName) && file_exists($this->ClassPath . $ClassName)) {
+            include_once $this->ClassPath . $ClassName;
         }
         return false;
     }

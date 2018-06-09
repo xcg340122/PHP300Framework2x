@@ -2,7 +2,7 @@
 
 namespace Framework\Library\Process;
 
-use \Framework\Library\Interfaces\RouterInterface as RouterInterfaces;
+use Framework\Library\Interfaces\RouterInterface as RouterInterfaces;
 
 /**
  * 系统路由
@@ -32,7 +32,6 @@ class Router implements RouterInterfaces
     {
         self::$requestUrl = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '';
         $this->RouteConfig = \Framework\App::$app->get('Config')->get('Router');
-
         $this->Route();
         $this->Matching();
     }
@@ -49,14 +48,10 @@ class Router implements RouterInterfaces
             preg_match_all('/^\/(.*)/', self::$requestUrl, $Url);
         }
         if (empty($Url[1][0])) return;
-
         $Url = $Url[1][0];
-
         $Url = explode('/', $Url);
         if (count($Url) > 0) {
-
             $extend = explode('.', end($Url));
-
             $ResourcesList = ['js', 'css', 'png', 'jpg', 'jpeg', 'bmp', 'ico', 'txt', 'gif', 'zip', 'rar', '7z', 'exe', 'msi', 'wav', 'mp3', 'avi', 'flv', 'md', 'json', 'ini'];
             if (count($extend) > 1 && in_array(end($extend), $ResourcesList)) {
                 return;
@@ -73,10 +68,9 @@ class Router implements RouterInterfaces
         if (self::$requestUrl == '') {
             $Url = '/';
         } else {
-            $Url = '/' . Visit::$param['Project'] . '/' . Visit::$param['Controller'] . '/' . Visit::$param['Function'];
+            $Url = '/' . ucwords(Visit::$param['Project']) . '/' . ucwords(Visit::$param['Controller']) . '/' . Visit::$param['Function'];
         }
-        if (is_array($this->RouteConfig) && count($this->RouteConfig) > 0 && isset($this->RouteConfig[$Url])) {
-
+        if (count($this->RouteConfig) > 0 && isset($this->RouteConfig[$Url])) {
             $function = $this->RouteConfig[$Url];
             if (gettype($function) == 'object') {
                 die($function());
