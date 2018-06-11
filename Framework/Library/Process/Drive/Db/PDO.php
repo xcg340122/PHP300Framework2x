@@ -47,6 +47,31 @@ class Pdo implements DbInterfaces
      */
     protected $queryDebug = [];
 
+
+    /**
+     * 数据主键
+     * @var string
+     */
+    protected $key = '';
+
+    /**
+     * 是否缓存数据
+     * @var bool
+     */
+    protected $iscache = false;
+
+    /**
+     * 数据表信息
+     * @var array
+     */
+    protected $data = [];
+
+    /**
+     * 数据库名
+     * @var string
+     */
+    protected $database = '';
+
     /**
      * 获取异常信息
      * @return mixed
@@ -75,7 +100,7 @@ class Pdo implements DbInterfaces
             );
 
             $this->pdo = new \PDO($dsn, $config['username'], $config['password'], $opt);
-
+            $this->database = $config['database'];
             return $this->pdo;
         } catch (\PDOException $ex) {
             exit($this->dbErrorMsg . $ex->getMessage());
@@ -228,6 +253,7 @@ class Pdo implements DbInterfaces
     {
         if (!empty($tableName)) {
             $this->tableName = '`' . $tableName . '`';
+            $this->getTableInfo();
             return $this;
         } else {
             \Framework\App::$app->get('LogicExceptions')->readErrorFile([
@@ -235,6 +261,41 @@ class Pdo implements DbInterfaces
                 'message' => 'Need to fill in Table Value!',
             ]);
         }
+    }
+
+    /**
+     * 返回数据表信息
+     * @return array|bool
+     */
+    protected function getTableInfo()
+    {
+        if ($this->tableName == '') {
+            \Framework\App::$app->get('LogicExceptions')->readErrorFile([
+                'message' => '尚未设定操作的数据表名称'
+            ]);
+        } else {
+            $queryString = str_replace('`', '', "select COLUMN_NAME,DATA_TYPE,COLUMN_DEFAULT,COLUMN_KEY,COLUMN_COMMENT  from information_schema.COLUMNS where table_name = '" . $this->tableName . "';");
+
+            $qry = $this->pdo->prepare($queryString);
+
+            $qry->execute();
+
+            $qry->setFetchMode(\PDO::FETCH_ASSOC);
+
+            $this->data = $qry->fetchAll();
+
+            if ($this->data) {
+                foreach ($this->data as $key => $value) {
+                    if ($this->data[$key]['COLUMN_KEY'] == 'PRI') {
+                        $this->key = $this->data[$key]['COLUMN_NAME'];
+                        break;
+                    }
+                    return $this->data;
+                }
+                return false;
+            }
+        }
+        return false;
     }
 
     /**
@@ -458,6 +519,50 @@ class Pdo implements DbInterfaces
         } catch (\PDOException $ex) {
             $this->handleres($queryString, true, $ex);
         }
+    }
+
+    /**
+     * 获取数据表主键
+     * @return string
+     */
+    public function getkey()
+    {
+        return $this->key;
+    }
+
+    /**
+     * 获取所有字段信息
+     * @return array
+     */
+    public function getField()
+    {
+        return $this->data;
+    }
+
+    /**
+     * 获取所有数据表
+     * @return array|bool|null
+     */
+    public function getTables()
+    {
+        $queryString = "select table_name from information_schema.tables where table_schema='" . $this->database . "' and table_type='base table';";
+
+        $qry = $this->pdo->prepare($queryString);
+
+        $qry->execute();
+
+        $qry->setFetchMode(\PDO::FETCH_ASSOC);
+
+        $list = $qry->fetchAll();
+
+        if (is_array($list)) {
+            $_list = [];
+            foreach ($list as $key => $value) {
+                $_list[] = $list[$key]['table_name'];
+            }
+            return $_list;
+        }
+        return $list;
     }
 
 }

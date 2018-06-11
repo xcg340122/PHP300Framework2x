@@ -50,6 +50,30 @@ class Mysqli implements DbInterfaces
     protected $total;
 
     /**
+     * 数据主键
+     * @var string
+     */
+    protected $key = '';
+
+    /**
+     * 是否缓存数据
+     * @var bool
+     */
+    protected $iscache = false;
+
+    /**
+     * 数据表信息
+     * @var array
+     */
+    protected $data = [];
+
+    /**
+     * 数据库名
+     * @var string
+     */
+    protected $database = '';
+
+    /**
      * 获取错误信息
      * @return string
      */
@@ -70,14 +94,14 @@ class Mysqli implements DbInterfaces
     {
         $this->link = @mysqli_connect($config['host'], $config['username'], $config['password'], $config['database'], $config['port']);
         if ($this->link != null) {
+            $this->database = $config['database'];
             mysqli_query($this->link, 'set names ' . $config['char']);
             return $this->link;
         } else {
-            $error = [
+            \Framework\App::$app->get('LogicExceptions')->readErrorFile([
                 'file' => __FILE__,
                 'message' => 'Mysql Host[ ' . $config['host'] . ' ] :: ' . Auxiliary::toUTF8(mysqli_connect_error())
-            ];
-            \Framework\App::$app->get('LogicExceptions')->readErrorFile($error);
+            ]);
         }
     }
 
@@ -148,7 +172,8 @@ class Mysqli implements DbInterfaces
     public function table($tabName = '')
     {
         if (!empty($tabName)) {
-            $this->tableName = '`'.$tabName.'`';
+            $this->tableName = '`' . $tabName . '`';
+            $this->getTableInfo();
             return $this;
         } else {
             \Framework\App::$app->get('LogicExceptions')->readErrorFile([
@@ -156,6 +181,34 @@ class Mysqli implements DbInterfaces
                 'message' => 'Need to fill in Table Value!',
             ]);
         }
+    }
+
+    /**
+     * 返回数据表信息
+     * @return bool|\mysqli_result
+     */
+    protected function getTableInfo()
+    {
+        if ($this->tableName == '') {
+            \Framework\App::$app->get('LogicExceptions')->readErrorFile([
+                'message' => '尚未设定操作的数据表名称'
+            ]);
+        } else {
+            $string = str_replace('`', '', "select COLUMN_NAME,DATA_TYPE,COLUMN_DEFAULT,COLUMN_KEY,COLUMN_COMMENT  from information_schema.COLUMNS where table_name = '" . $this->tableName . "';");
+            $info = mysqli_query($this->link, $string);
+            if ($info !== false) {
+                $this->data = mysqli_fetch_all($info, MYSQLI_ASSOC);
+                foreach ($this->data as $key => $value) {
+                    if ($this->data[$key]['COLUMN_KEY'] == 'PRI') {
+                        $this->key = $this->data[$key]['COLUMN_NAME'];
+                        break;
+                    }
+                    return $info;
+                }
+                return false;
+            }
+        }
+        return false;
     }
 
     /**
@@ -197,6 +250,22 @@ class Mysqli implements DbInterfaces
         if (isset($qryArray['limit'])) {
             $limit = is_array($qryArray['limit']) ? implode(',', $qryArray['limit']) : $qryArray['limit'];
             $limit = ' LIMIT ' . $limit;
+        }
+        if (isset($qryArray['page'])) {
+            $page = 1;
+            $limit = 10;
+            if (is_numeric($qryArray['page'])) {
+                $page = $qryArray['page'];
+            }
+            if (is_array($qryArray['page'])) {
+                if (isset($qryArray['page'][0]) && isset($qryArray['page'][1])) {
+                    $page = is_numeric($qryArray['page'][0]) ? $qryArray['page'][0] : 1;
+                    $limit = is_numeric($qryArray['page'][1]) ? $qryArray['page'][1] : 10;
+
+                }
+            }
+            $start = ($page - 1) * $limit;
+            $limit = ' LIMIT ' . $start . ',' . $limit;
         }
         $queryString = 'SELECT ' . $field . ' FROM ' . $this->tableName . $join . $where . $group . $order . $limit;
 
@@ -425,6 +494,46 @@ class Mysqli implements DbInterfaces
         $this->queryDebug = ['string' => $queryString, 'affectedRows' => $this->total];
 
         return $res === false ? false : $this->total;
+    }
+
+    /**
+     * 获取数据表主键
+     * @return string
+     */
+    public function getkey()
+    {
+        return $this->key;
+    }
+
+    /**
+     * 获取所有字段信息
+     * @return array
+     */
+    public function getField()
+    {
+        return $this->data;
+    }
+
+    /**
+     * 获取所有数据表
+     * @return array|bool|null
+     */
+    public function getTables()
+    {
+        $res = mysqli_query($this->link, "select table_name from information_schema.tables where table_schema='" . $this->database . "' and table_type='base table';");
+        if ($res !== false) {
+            $list = mysqli_fetch_all($res, MYSQLI_ASSOC);
+            if (is_array($list)) {
+                $_list = [];
+                foreach ($list as $key => $value) {
+                    $_list[] = $list[$key]['table_name'];
+                }
+                return $_list;
+            }
+            return $list;
+
+        }
+        return false;
     }
 
 }

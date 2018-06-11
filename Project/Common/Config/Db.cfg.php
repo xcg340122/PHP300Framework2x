@@ -23,7 +23,7 @@ return [
         'password' => 'root',
 
         /** 数据库名称 */
-        'database' => 'mysql',
+        'database' => 'test',
 
         /** 数据库编码 */
         'char' => 'utf8',
