@@ -407,7 +407,7 @@ class Mysqli implements DbInterfaces
             $v_key = rtrim($v_key, '.,');
             $v_value = rtrim($v_value, '.,');
 
-            $queryString = 'INSERT INTO `' . $this->tableName . '` (' . $v_key . ') VALUES(' . $v_value . ');';
+            $queryString = 'INSERT INTO '. $this->tableName . ' (' . $v_key . ') VALUES(' . $v_value . ');';
 
             $res = $this->query($queryString, true);
 
