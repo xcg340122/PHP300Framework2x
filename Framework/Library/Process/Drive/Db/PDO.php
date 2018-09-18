@@ -16,37 +16,42 @@ class Pdo implements DbInterfaces
      * @var string
      */
     public $dbErrorMsg = 'SQL IN WRONG: ';
+
     /**
      * 获取方式
      * @var int
      */
     public $fetchMethod = \PDO::FETCH_OBJ;
+
     /**
      * 实例对象
      * @var
      */
     protected $pdo;
+
     /**
      * 结果集
      * @var bool
      */
     protected $result = false;
+
     /**
      * 影响条数
      * @var
      */
     protected $total;
+
     /**
      * 操作表名
      * @var null
      */
     protected $tableName = NULL;
+
     /**
      * debug
      * @var array
      */
     protected $queryDebug = [];
-
 
     /**
      * 数据主键
@@ -71,6 +76,12 @@ class Pdo implements DbInterfaces
      * @var string
      */
     protected $database = '';
+
+    /**
+     * 表前缀
+     * @var string
+     */
+    protected $tabprefix = '';
 
     /**
      * 获取异常信息
@@ -101,6 +112,9 @@ class Pdo implements DbInterfaces
 
             $this->pdo = new \PDO($dsn, $config['username'], $config['password'], $opt);
             $this->database = $config['database'];
+            if(!empty($config['tabprefix'])){
+                $this->tabprefix = $config['tabprefix'];
+            }
             return $this->pdo;
         } catch (\PDOException $ex) {
             exit($this->dbErrorMsg . $ex->getMessage());
@@ -252,7 +266,7 @@ class Pdo implements DbInterfaces
     public function table($tableName = '')
     {
         if (!empty($tableName)) {
-            $this->tableName = '`' . $tableName . '`';
+            $this->tableName = '`' . $this->tabprefix . $tableName . '`';
             $this->getTableInfo();
             return $this;
         } else {
@@ -318,10 +332,7 @@ class Pdo implements DbInterfaces
         if (empty($field)) $field = ' * ';
 
         if (isset($qryArray['join'])) {
-            $join .= is_array($qryArray['join']) ? implode(' ', $qryArray['join']) : $qryArray['join'];
-            if (empty($join)) {
-                $join = ' ' . $join;
-            }
+            $join = is_array($qryArray['join']) ? ' '.implode(' ', $qryArray['join']) : ' '.$qryArray['join'];
         }
         if (isset($qryArray['where'])) {
             $where = $this->structureWhere($qryArray['where']);

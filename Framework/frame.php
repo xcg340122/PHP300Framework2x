@@ -120,6 +120,7 @@ class App
         if (Running::$runMode == 'cli') Visit::setCliParam();
         $object = Visit::mergeParam();
         $function = Visit::getfunction();
+        Running::setconstant();
         $app = new $object();
         if (method_exists($app, $function)) {
             $this->get('ReturnHandle')->Output($app->$function());

@@ -74,6 +74,12 @@ class Mysqli implements DbInterfaces
     protected $database = '';
 
     /**
+     * 表前缀
+     * @var string
+     */
+    protected $tabprefix = '';
+
+    /**
      * 获取错误信息
      * @return string
      */
@@ -96,6 +102,9 @@ class Mysqli implements DbInterfaces
         if ($this->link != null) {
             $this->database = $config['database'];
             mysqli_query($this->link, 'set names ' . $config['char']);
+            if(!empty($config['tabprefix'])){
+                $this->tabprefix = $config['tabprefix'];
+            }
             return $this->link;
         } else {
             \Framework\App::$app->get('LogicExceptions')->readErrorFile([
@@ -108,6 +117,7 @@ class Mysqli implements DbInterfaces
     /**
      * 操作多数据库连接
      * @param $link
+     * @return $this
      */
     public function setlink($link)
     {
@@ -148,7 +158,7 @@ class Mysqli implements DbInterfaces
 
     /**
      * debug
-     * @return array
+     * @return bool|mixed
      */
     public function debug()
     {
@@ -172,7 +182,7 @@ class Mysqli implements DbInterfaces
     public function table($tabName = '')
     {
         if (!empty($tabName)) {
-            $this->tableName = '`' . $tabName . '`';
+            $this->tableName = '`' . $this->tabprefix . $tabName . '`';
             $this->getTableInfo();
             return $this;
         } else {
@@ -231,10 +241,7 @@ class Mysqli implements DbInterfaces
         if (empty($field)) $field = ' * ';
 
         if (isset($qryArray['join'])) {
-            $join .= ' ' . is_array($qryArray['join']) ? implode(' ', $qryArray['join']) : $qryArray['join'];
-            if (empty($join)) {
-                $join = ' ' . $join;
-            }
+            $join = is_array($qryArray['join']) ? ' '.implode(' ', $qryArray['join']) : ' '.$qryArray['join'];
         }
         if (isset($qryArray['where'])) {
             $where = $this->structureWhere($qryArray['where']);

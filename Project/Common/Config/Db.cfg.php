@@ -25,6 +25,9 @@ return [
         /** 数据库名称 */
         'database' => 'test',
 
+        /** 数据表前缀 */
+        'tabprefix' => '',
+
         /** 数据库编码 */
         'char' => 'utf8',
 

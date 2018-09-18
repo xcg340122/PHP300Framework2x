@@ -4,8 +4,8 @@ namespace App\Model;
 
 /**
  * 数据模型类演示
- * Class IndexModel
- * @package Model\Home
+ * Class UserModel
+ * @package App\Model
  */
 class UserModel
 {
