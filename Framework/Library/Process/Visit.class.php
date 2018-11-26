@@ -13,10 +13,16 @@ class Visit implements VisitInterfaces
 {
 
     /**
-     * 访问参数
+     * 访问配置参数
      * @var array
      */
     static public $param;
+
+    /**
+     * 默认请求参数
+     * @var array
+     */
+    static public $request;
 
     /**
      * 初始化构造
@@ -25,7 +31,8 @@ class Visit implements VisitInterfaces
     public function __construct()
     {
         $VisitConfig = \Framework\App::$app->get('Config')->get('frame');
-        if (isset($VisitConfig['Visit'])) self::$param = $VisitConfig['Visit'];
+        if (isset($VisitConfig['Visit'])){ self::$param = $VisitConfig['Visit']; }
+        if (isset($VisitConfig['Parameter'])){ self::$request = $VisitConfig['Parameter']; }
     }
 
     /**
@@ -35,8 +42,7 @@ class Visit implements VisitInterfaces
     static public function mergeParam()
     {
         \Framework\App::$app->get('Router');
-        return self::$param['namespace'] . '\\' . ucwords(self::$param['Project']) . '\\' . ucwords
-            (self::$param['Controller']);
+        return self::$param['namespace'] . '\\' . ucwords(self::$param['Project']) . '\\' . ucwords(self::$param['Controller']);
     }
 
     /**
@@ -60,21 +66,26 @@ class Visit implements VisitInterfaces
      */
     static function setCliParam()
     {
-        $param = $_SERVER['argv'];
-        if (count($param) > 3) {
-            foreach ($param as $key => $value) {
-                if ($key > 0) {
-                    $param[($key - 1)] = $value;
+        if(isset($_SERVER['argv'])){
+            $param = $_SERVER['argv'];
+            if (count($param) > 3) {
+                foreach ($param as $key => $value) {
+                    if ($key > 0) {
+                        $param[($key - 1)] = $value;
+                    }
                 }
+                unset($param[3]);
+                \Framework\App::$app->get('Visit')->bind($param);
+            } else {
+                if (count($param) === 1) {
+                    return true;
+                }
+                die('PHP300::Inadequacy of parameters!');
             }
-            unset($param[3]);
-            \Framework\App::$app->get('Visit')->bind($param);
-        } else {
-            if (count($param) === 1) {
-                return true;
-            }
-            die('PHP300::Inadequacy of parameters!');
+        }else{
+            die('PHP300:server.argv not found');
         }
+        return false;
     }
 
     /**

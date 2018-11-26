@@ -58,10 +58,11 @@ class Memcache implements CacheInterfaces
 
     /**
      * 设定一个缓存标识
-     * @param $key
-     * @param $value
-     * @param bool $iszip
-     * @param int $expire
+     * @param $key 缓存key
+     * @param $value 缓存value
+     * @param bool $iszip 是否压缩
+     * @param int $expire 缓存周期
+     * @return bool|mixed
      */
     public function set($key, $value, $iszip = false, $expire = 3600)
     {
@@ -70,7 +71,9 @@ class Memcache implements CacheInterfaces
 
     /**
      * 删除一个标识
-     * @param $key
+     * @param $key  缓存key
+     * @param int $timeout
+     * @return bool|mixed
      */
     public function delete($key, $timeout = 0)
     {
@@ -86,6 +89,7 @@ class Memcache implements CacheInterfaces
      * @param $value
      * @param bool $iszip
      * @param int $expire
+     * @return bool|mixed
      */
     public function replace($key, $value, $iszip = false, $expire = 3600)
     {

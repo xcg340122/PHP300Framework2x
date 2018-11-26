@@ -80,6 +80,25 @@ class LogicExceptions implements LogicExceptionsInterfaces
     }
 
     /**
+     * 判断错误级别
+     * @param $errorlevel
+     * @param $error
+     * @return bool
+     */
+    private function judgeLevel($errorlevel, $error)
+    {
+        if (!empty($errorlevel) && !empty($error)) {
+            if ($error == 'E_ALL') return true;
+            $errorList = explode('|', $error);
+            foreach ($errorList as $key => $value) {
+                $errorList[$key] = trim($value);
+            }
+            return in_array($errorlevel, $errorList);
+        }
+        return false;
+    }
+
+    /**
      * 返回关联应用
      * @param $Path
      * @return bool
@@ -172,24 +191,5 @@ class LogicExceptions implements LogicExceptionsInterfaces
         $View->getView()->left_delimiter = '{';
         $View->getView()->right_delimiter = '}';
         die($View->data(['data' => $data])->get());
-    }
-
-    /**
-     * 判断错误级别
-     * @param $errorlevel
-     * @param $error
-     * @return bool
-     */
-    private function judgeLevel($errorlevel, $error)
-    {
-        if (!empty($errorlevel) && !empty($error)) {
-            if ($error == 'E_ALL') return true;
-            $errorList = explode('|', $error);
-            foreach ($errorList as $key => $value) {
-                $errorList[$key] = trim($value);
-            }
-            return in_array($errorlevel, $errorList);
-        }
-        return false;
     }
 }

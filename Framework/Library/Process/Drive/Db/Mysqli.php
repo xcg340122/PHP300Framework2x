@@ -102,7 +102,7 @@ class Mysqli implements DbInterfaces
         if ($this->link != null) {
             $this->database = $config['database'];
             mysqli_query($this->link, 'set names ' . $config['char']);
-            if(!empty($config['tabprefix'])){
+            if (!empty($config['tabprefix'])) {
                 $this->tabprefix = $config['tabprefix'];
             }
             return $this->link;
@@ -241,7 +241,7 @@ class Mysqli implements DbInterfaces
         if (empty($field)) $field = ' * ';
 
         if (isset($qryArray['join'])) {
-            $join = is_array($qryArray['join']) ? ' '.implode(' ', $qryArray['join']) : ' '.$qryArray['join'];
+            $join = is_array($qryArray['join']) ? ' ' . implode(' ', $qryArray['join']) : ' ' . $qryArray['join'];
         }
         if (isset($qryArray['where'])) {
             $where = $this->structureWhere($qryArray['where']);
@@ -414,7 +414,7 @@ class Mysqli implements DbInterfaces
             $v_key = rtrim($v_key, '.,');
             $v_value = rtrim($v_value, '.,');
 
-            $queryString = 'INSERT INTO '. $this->tableName . ' (' . $v_key . ') VALUES(' . $v_value . ');';
+            $queryString = 'INSERT INTO ' . $this->tableName . ' (' . $v_key . ') VALUES(' . $v_value . ');';
 
             $res = $this->query($queryString, true);
 

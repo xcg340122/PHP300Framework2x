@@ -64,6 +64,7 @@ class Redis implements CacheInterfaces
      * @param $value
      * @param bool $iszip
      * @param int $expire
+     * @return bool|mixed
      */
     public function set($key, $value, $iszip = false, $expire = 3600)
     {
@@ -73,6 +74,8 @@ class Redis implements CacheInterfaces
     /**
      * 删除一个标识
      * @param $key
+     * @param int $timeout
+     * @return bool|int|mixed
      */
     public function delete($key, $timeout = 0)
     {
@@ -88,6 +91,7 @@ class Redis implements CacheInterfaces
      * @param $value
      * @param bool $iszip
      * @param int $expire
+     * @return mixed|string
      */
     public function replace($key, $value, $iszip = false, $expire = 3600)
     {

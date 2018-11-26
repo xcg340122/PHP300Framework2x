@@ -30,10 +30,14 @@ class Router implements RouterInterfaces
      */
     public function __construct()
     {
-        self::$requestUrl = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '';
-        $this->RouteConfig = \Framework\App::$app->get('Config')->get('Router');
-        $this->Route();
-        $this->Matching();
+        if (isset($_SERVER['PATH_INFO'])) {
+            $this->RouteConfig = \Framework\App::$app->get('Config')->get('Router');
+            self::$requestUrl = $_SERVER['PATH_INFO'];
+            $this->Route();
+            $this->Matching();
+        } else {
+            $this->TraditionUrl();
+        }
     }
 
     /**
@@ -70,11 +74,32 @@ class Router implements RouterInterfaces
         } else {
             $Url = '/' . ucwords(Visit::$param['Project']) . '/' . ucwords(Visit::$param['Controller']) . '/' . Visit::$param['Function'];
         }
+        $Url = strtolower($Url);
         if (count($this->RouteConfig) > 0 && isset($this->RouteConfig[$Url])) {
             $function = $this->RouteConfig[$Url];
             if (gettype($function) == 'object') {
-                die($function());
+                \Framework\App::$app->get('ReturnHandle')->Output($function());
+                die();
             }
+        }
+    }
+
+    /**
+     * 传统URL请求匹配
+     */
+    public function TraditionUrl()
+    {
+        $Project = get(Visit::$request['Project']);
+        $Controller = get(Visit::$request['Controller']);
+        $Function = get(Visit::$request['Function']);
+        if (!empty($Project)) {
+            Visit::$param['Project'] = $Project;
+        }
+        if (!empty($Controller)) {
+            Visit::$param['Controller'] = $Controller;
+        }
+        if (!empty($Function)) {
+            Visit::$param['Function'] = $Function;
         }
     }
 

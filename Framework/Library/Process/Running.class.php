@@ -27,18 +27,16 @@ class Running
      * @var bool
      */
     static public $Debug;
-
-    /**
-     * 监视运行参数
-     * @var array
-     */
-    public $param = [];
-
     /**
      * 路径信息
      * @var string
      */
     static public $framworkPath;
+    /**
+     * 监视运行参数
+     * @var array
+     */
+    public $param = [];
 
     /**
      * 运行构造

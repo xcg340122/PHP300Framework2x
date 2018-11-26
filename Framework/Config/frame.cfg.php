@@ -80,6 +80,27 @@ return [
         'extend' => '.html'
     ],
 
+    /**
+     * 参数请求
+     */
+    'Parameter' => [
+
+        /**
+         * 默认实例key
+         */
+        'Project' => 'p',
+
+        /**
+         * 默认控制器key
+         */
+        'Controller' => 'c',
+
+        /**
+         * 默认方法key
+         */
+        'Function' => 'f',
+    ],
+
     'View' => [
 
         /**

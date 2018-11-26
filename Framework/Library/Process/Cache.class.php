@@ -24,7 +24,9 @@ class Cache
 
         'memcache' => 'Drive\Cache\Memcache',
 
-        'redis' => 'Drive\Cache\Redis'
+        'redis' => 'Drive\Cache\Redis',
+
+        'file' => 'Drive\Cache\File'
     ];
 
     /**
@@ -35,7 +37,9 @@ class Cache
         $CacheConfig = \Framework\App::$app->get('Config')->get('Cache');
         if (is_array($CacheConfig) && isset($CacheConfig['ip'])) {
             $this->object = \Framework\App::$app->get($this->CacheType[strtolower($CacheConfig['cacheType'])]);
-            $this->object->connect($CacheConfig['ip'], $CacheConfig['port']);
+            if(strtolower($CacheConfig['cacheType']) != 'file'){
+                $this->object->connect($CacheConfig['ip'], $CacheConfig['port']);
+            }
         }
         return $this;
     }

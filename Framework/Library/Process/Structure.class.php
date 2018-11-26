@@ -92,7 +92,9 @@ class Structure
     {
         if (!is_dir($path)) {
             self::createDir(dirname($path));
-            mkdir($path, 0777);
+            if(mkdir($path, 0777) === false){
+                die('PHP300:No written permission -> (PATH:' . $path . ')');
+            }
         }
     }
 
@@ -109,7 +111,7 @@ class Structure
         $fileObj = strpos($class, 'App/') !== false ? $framworkPath . str_replace('App/', 'Project/', $class) . $this->extend : $framworkPath . str_replace('Framework/', '', $class) . $this->extend;
         if (file_exists($fileObj)) {
             self::$endfile = $fileObj;
-            include_once $fileObj;
+            include_once($fileObj);
         } else {
             Running::$iserror = true;
             if (strpos($fileObj, 'Project/')) {

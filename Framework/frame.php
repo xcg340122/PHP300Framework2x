@@ -44,6 +44,10 @@ class App
      */
     public function __construct($Path = '')
     {
+        $ini = ini_get('date.timezone');
+        if (empty($ini)) {
+            ini_set('date.timezone', 'Asia/Shanghai');
+        }
         self::$app = $this;
         $this->corePath = is_dir($Path) ? $Path . '/Framework/' : __DIR__ . '/';
         $this->inBatch(['Running', 'Auxiliary', 'Structure', 'Config', 'Log', 'LogicExceptions']);
@@ -95,7 +99,7 @@ class App
         $Path = $this->corePath . 'Library/Process/' . str_replace('\\', '/', $Pointer);
         $Path .= strpos($Pointer, 'Drive') !== false ? '.php' : '.class.php';
         if (file_exists($Path)) {
-            require_once $Path;
+            require_once($Path);
             return new $PNamespace();
         }
         return false;
@@ -117,7 +121,9 @@ class App
     public function run()
     {
         Running::$runMode = php_sapi_name();
-        if (Running::$runMode == 'cli') Visit::setCliParam();
+        if (Running::$runMode == 'cli') {
+            Visit::setCliParam();
+        }
         $object = Visit::mergeParam();
         $function = Visit::getfunction();
         Running::setconstant();
@@ -130,6 +136,5 @@ class App
                 'message' => "[{$function}] 方法不存在!"
             ]);
         }
-        $this->get('Running')->endRecord();
     }
 }

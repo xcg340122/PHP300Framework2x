@@ -11,10 +11,10 @@ class Auxiliary
 {
     /**
      * HTTP状态码
-     * @param $code 状态码
-     * @return string
+     * @param string $code 状态码
+     * @return mixed|string
      */
-    static public function httpcode($code)
+    static public function httpcode($code = '200')
     {
         $http = [
             '100' => '100 Continue',
@@ -136,18 +136,17 @@ class Auxiliary
     }
 
     /**
-     * 将字符编码转换到utf8
-     * @param string $string 欲转换的字符串
-     * @return string
+     * 判断是否为SSL连接
+     * @return bool
      */
-    static public function toUTF8($string = '')
+    static public function isSSL()
     {
-        if (!empty($string)) {
-            $encoding = mb_detect_encoding($string, array('ASCII', 'UTF-8', 'GB2312', 'GBK', 'BIG5'));
-            if ($encoding != 'UTF-8') {
-                return iconv($encoding, 'UTF-8', $string);
-            }
-            return $string;
+        $HTTPS = self::Receive('server.HTTPS');
+        $PORT = self::Receive('server.SERVER_PORT');
+        if (isset($HTTPS) && ('1' == $HTTPS || 'on' == strtolower($HTTPS))) {
+            return true;
+        } elseif (isset($PORT) && ('443' == $PORT)) {
+            return true;
         }
         return false;
     }
@@ -218,19 +217,97 @@ class Auxiliary
     }
 
     /**
-     * 判断是否为SSL连接
+     * 将字符编码转换到utf8
+     * @param string $string 欲转换的字符串
+     * @return string
+     */
+    static public function toUTF8($string = '')
+    {
+        if (!empty($string)) {
+            $encoding = mb_detect_encoding($string, array('ASCII', 'UTF-8', 'GB2312', 'GBK', 'BIG5'));
+            if ($encoding != 'UTF-8') {
+                return iconv($encoding, 'UTF-8', $string);
+            }
+            return $string;
+        }
+        return false;
+    }
+
+    /**
+     * 判断是否为get请求
      * @return bool
      */
-    static public function isSSL()
+    static public function isGET()
     {
-        $HTTPS = self::Receive('server.HTTPS');
-        $PORT = self::Receive('server.SERVER_PORT');
-        if (isset($HTTPS) && ('1' == $HTTPS || 'on' == strtolower($HTTPS))) {
-            return true;
-        } elseif (isset($PORT) && ('443' == $PORT)) {
+        if (self::Receive('server.REQUEST_METHOD') == 'GET') {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 判断是否为POST请求
+     * @return bool
+     */
+    static public function isPOST()
+    {
+        if (self::Receive('server.REQUEST_METHOD') == 'POST') {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 判断是否为cli运行模式
+     * @return bool
+     */
+    static public function isCli()
+    {
+        if (Running::$runMode == 'cli') {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 判断是否为windows
+     * @return bool
+     */
+    static public function isWin()
+    {
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 生成随机字符串
+     * @param int $len 字符长度
+     * @param bool $lower 是否转小写
+     * @return int|mixed|string
+     */
+    static public function RandStr($len = 8, $lower = false)
+    {
+        $str = null;
+        $strPol = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
+        $max = strlen($strPol) - 1;
+
+        for ($i = 0; $i < $len; $i++) {
+            $str .= $strPol[rand(0, $max)]; //rand($min,$max)生成介于min和max两个数之间的一个随机整数
+        }
+        return ($lower) ? strtolower($str) : $str;
+    }
+
+    /**
+     * 通过一个文本影响加密字符
+     * @param $pwd
+     * @param string $str
+     * @return string
+     */
+    static public function impact($pwd,$str='')
+    {
+        return md5(md5(base64_encode($pwd)) . md5($str));
     }
 
     /**
