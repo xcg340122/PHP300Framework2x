@@ -236,7 +236,28 @@ class Mysqli implements DbInterfaces
         $limit = '';
 
         if (isset($qryArray['field'])) {
-            $field = is_array($qryArray['field']) ? implode(',', $qryArray['field']) : $qryArray['field'];
+            if(is_array($qryArray['field'])){
+                if(isset($qryArray['field']['NOT'])){
+                    if(is_array($qryArray['field']['NOT'])){
+                        $field_arr = $this->getField();
+                        if(is_array($field_arr)){
+                            foreach ($field_arr as $key=>$value) {
+                                if(!in_array($value['COLUMN_NAME'] , $qryArray['field']['NOT'])){
+                                    $field .= '`'.$value['COLUMN_NAME'] . '`,';
+                                }
+                            }
+                            $field = rtrim($field,'.,');
+                        }
+                    }
+                }else{
+                    foreach ($qryArray['field'] as $key=>$value){
+                        $field .= '`'.$value . '`,';
+                    }
+                    $field = rtrim($field,'.,');
+                }
+            }else{
+                $field = $qryArray['field'];
+            }
         }
         if (empty($field)) $field = ' * ';
 
