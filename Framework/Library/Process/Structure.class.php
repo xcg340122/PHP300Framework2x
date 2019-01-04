@@ -72,6 +72,7 @@ class Structure
      */
     private function RunTimeInit()
     {
+        $this->checkPower(Running::$framworkPath.'/tmp');
         $getPath = Running::$framworkPath . 'Project/';
         $CreateDefaultDir = ['Log'];
         if (is_array(self::$ProjectList) && count(self::$ProjectList) > 0) {
@@ -137,6 +138,19 @@ class Structure
         $file = Running::$framworkPath . 'Project/View' . Router::$requestUrl;
         if (file_exists($file)) {
             die(View('', $file)->get());
+        }
+    }
+
+    /**
+     * 检查权限
+     * @param $path
+     */
+    private function checkPower($path)
+    {
+        if(Auxiliary::isWin() === false){
+            if(!is_writable($path)){
+                die('PHP300Framework Adequate privileges are required to run!');
+            }
         }
     }
 }
