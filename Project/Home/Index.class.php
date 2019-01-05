@@ -17,9 +17,9 @@ class Index
     {
         //演示cli模式下处理
         if (Auxiliary::isCli()){
-            return 'hello this is cli mode,framework version:2.4.0!';
+            return 'hello this is cli mode,framework version:2.4.1!';
         }
 
-        return View('Home/index')->data(['show' => 'PHP300Framework - 想象无极限', 'describe' => '每个人的生命都是一只小船，梦想是小船的风帆。', 'version' => '2.4.0'])->get();
+        return View('Home/index')->data(['show' => 'PHP300Framework - 想象无极限', 'describe' => '每个人的生命都是一只小船，梦想是小船的风帆。', 'version' => '2.4.1'])->get();
     }
 }
