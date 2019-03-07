@@ -411,6 +411,7 @@ class Pdo implements DbInterfaces
      */
     private function structureWhere($whereData = [])
     {
+        if(empty($whereData)){ return ''; }
         $where = ' WHERE ';
         if (is_array($whereData)) {
             foreach ($whereData as $key => $value) {
