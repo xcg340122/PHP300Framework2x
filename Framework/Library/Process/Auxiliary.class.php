@@ -258,6 +258,21 @@ class Auxiliary
     }
 
     /**
+     * 判断是否为Ajax请求
+     * @return bool
+     */
+    static public function isAjax()
+    {
+        if (isset($_SERVER["HTTP_X_REQUESTED_WITH"])){
+            if(strtolower($_SERVER["HTTP_X_REQUESTED_WITH"]) == 'xmlhttprequest'){ return true; }
+        } else {
+            if(strpos('application/json',self::Receive('server.HTTP_ACCEPT'))){ return true; }
+            return false;
+        }
+        return false;
+    }
+
+    /**
      * 判断是否为cli运行模式
      * @return bool
      */

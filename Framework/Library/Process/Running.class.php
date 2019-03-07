@@ -27,11 +27,13 @@ class Running
      * @var bool
      */
     static public $Debug;
+
     /**
      * 路径信息
      * @var string
      */
     static public $framworkPath;
+
     /**
      * 监视运行参数
      * @var array

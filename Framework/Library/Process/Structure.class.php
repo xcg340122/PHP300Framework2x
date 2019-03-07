@@ -1,7 +1,7 @@
 <?php
-
 namespace Framework\Library\Process;
 
+use Framework\App;
 /**
  * 系统结构加载器
  * Class Structure
@@ -45,7 +45,7 @@ class Structure
         $getPath = Running::$framworkPath . '/Project/';
         $Project = $this->getDir($getPath);
         if (is_array($Project) && count($Project) > 0) {
-            $array = ['Runtime', 'Common', 'favicon.ico'];
+            $array = ['runtime','config'];
             foreach ($Project as $value) {
                 if (is_dir($getPath . $value) && !in_array($value, $array)) {
                     self::$ProjectList[] = $value;
@@ -72,17 +72,17 @@ class Structure
      */
     private function RunTimeInit()
     {
-        $this->checkPower(Running::$framworkPath.'/tmp');
+        $this->checkPower(Running::$framworkPath.'tmp');
         $getPath = Running::$framworkPath . 'Project/';
-        $CreateDefaultDir = ['Log'];
+        $CreateDefaultDir = ['log'];
         if (is_array(self::$ProjectList) && count(self::$ProjectList) > 0) {
             foreach (self::$ProjectList as $value) {
                 foreach ($CreateDefaultDir as $default) {
-                    self::createDir($getPath . 'Runtime/' . $value . '/' . $default);
+                    self::createDir($getPath . 'runtime/' . $value . '/' . $default);
                 }
             }
         }
-        require \Framework\App::$app->corePath . 'Library/Common/helper.php';
+        require App::$app->corePath . 'Library/Common/helper.php';
     }
 
     /**
@@ -106,9 +106,9 @@ class Structure
     public function __autoload($class)
     {
         $class = str_replace('\\', '/', $class);
-        $strpos = strpos($class, '/Interfaces');
-        $framworkPath = $strpos ? \Framework\App::$app->corePath : Running::$framworkPath;
-        $this->extend = $strpos ? '.php' : '.class.php';
+        $istrpos = strpos($class, '/Interfaces');
+        $framworkPath = $istrpos ? App::$app->corePath : Running::$framworkPath;
+        $this->extend = $istrpos ? '.php' : '.class.php';
         $fileObj = strpos($class, 'App/') !== false ? $framworkPath . str_replace('App/', 'Project/', $class) . $this->extend : $framworkPath . str_replace('Framework/', '', $class) . $this->extend;
         if (file_exists($fileObj)) {
             self::$endfile = $fileObj;
@@ -126,7 +126,7 @@ class Structure
                     'message' => '您引用了一个不存在的文件!'
                 ];
             }
-            \Framework\App::$app->get('LogicExceptions')->readErrorFile($error);
+            App::$app->get('LogicExceptions')->readErrorFile($error);
         }
     }
 
@@ -135,7 +135,7 @@ class Structure
      */
     public function getStaticTpl()
     {
-        $file = Running::$framworkPath . 'Project/View' . Router::$requestUrl;
+        $file = Running::$framworkPath . 'Project/view' . Router::$requestUrl;
         if (file_exists($file)) {
             die(View('', $file)->get());
         }
@@ -147,9 +147,9 @@ class Structure
      */
     private function checkPower($path)
     {
-        if(Auxiliary::isWin() === false){
-            if(!is_writable($path)){
-                die('PHP300Framework Adequate privileges are required to run!');
+        if(Auxiliary::isWin() === false && file_exists($path) === false){
+            if(file_put_contents($path,'') === false){
+                die('PHP300Framework Adequate privileges are required to run!('.$path.')');
             }
         }
     }

@@ -7,6 +7,7 @@ namespace Framework\Library\Process;
  * Class LogicExceptions
  * @package Framework\Library\Process
  */
+use Framework\App;
 use Framework\Library\Interfaces\LogicExceptionsInterface as LogicExceptionsInterfaces;
 
 class LogicExceptions implements LogicExceptionsInterfaces
@@ -25,7 +26,7 @@ class LogicExceptions implements LogicExceptionsInterfaces
     {
         error_reporting(0);
         register_shutdown_function([&$this, 'Mount']);
-        self::$Config = \Framework\App::$app->get('Config')->get('frame');
+        self::$Config = App::$app->get('Config')->get('frame');
         Running::$Debug = self::$Config['Exception']['display_switch'];
     }
 
@@ -67,7 +68,7 @@ class LogicExceptions implements LogicExceptionsInterfaces
 
                     $Project = $this->getProjectName($error['file']);
                     if ($Project) {
-                        \Framework\App::$app->get('Log')->Record(Running::$framworkPath . '/Project/Runtime/' . $Project . '/Log', 'Error', $log);
+                        App::$app->get('Log')->Record(Running::$framworkPath . '/Project/runtime/' . $Project . '/log', 'error', $log);
                     }
                 }
             }
@@ -105,7 +106,7 @@ class LogicExceptions implements LogicExceptionsInterfaces
      */
     private function getProjectName($Path)
     {
-        \Framework\App::$app->get('Structure');
+        App::$app->get('Structure');
         $Path = str_replace('\\', '/', $Path);
         $Temporary = explode('Project/', $Path);
         if (!empty($Temporary[1])) {
@@ -162,7 +163,7 @@ class LogicExceptions implements LogicExceptionsInterfaces
                     $error['code'] = $code;
                 }
             }
-            $View = View('', \Framework\App::$app->corePath . 'Library/Process/Tpl/error.tpl');
+            $View = View('', App::$app->corePath . 'Library/Process/Tpl/error.tpl');
             $View->getView()->left_delimiter = '{';
             $View->getView()->right_delimiter = '}';
             die($View->data([
@@ -187,7 +188,7 @@ class LogicExceptions implements LogicExceptionsInterfaces
      */
     public function displayed($page = 'success', $data = array())
     {
-        $View = View('', \Framework\App::$app->corePath . 'Library/Process/Tpl/' . $page . '_page.tpl');
+        $View = View('', App::$app->corePath . 'Library/Process/Tpl/' . $page . '_page.tpl');
         $View->getView()->left_delimiter = '{';
         $View->getView()->right_delimiter = '}';
         die($View->data(['data' => $data])->get());

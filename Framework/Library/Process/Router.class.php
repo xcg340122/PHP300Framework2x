@@ -2,6 +2,7 @@
 
 namespace Framework\Library\Process;
 
+use Framework\App;
 use Framework\Library\Interfaces\RouterInterface as RouterInterfaces;
 
 /**
@@ -16,7 +17,7 @@ class Router implements RouterInterfaces
      * 用户请求地址
      * @var string
      */
-    static public $requestUrl;
+    static public $requestUrl = '';
 
     /**
      * 路由配置信息
@@ -31,13 +32,12 @@ class Router implements RouterInterfaces
     public function __construct()
     {
         if (isset($_SERVER['PATH_INFO'])) {
-            $this->RouteConfig = \Framework\App::$app->get('Config')->get('Router');
+            $this->RouteConfig = Config::$AppConfig['router'];
             self::$requestUrl = $_SERVER['PATH_INFO'];
             $this->Route();
             $this->Matching();
-        } else {
-            $this->TraditionUrl();
         }
+        $this->TraditionUrl();
     }
 
     /**
@@ -61,7 +61,7 @@ class Router implements RouterInterfaces
                 return;
             }
         }
-        \Framework\App::$app->get('Visit')->bind($Url);
+        App::$app->get('Visit')->bind($Url);
     }
 
     /**
@@ -78,7 +78,7 @@ class Router implements RouterInterfaces
         if (count($this->RouteConfig) > 0 && isset($this->RouteConfig[$Url])) {
             $function = $this->RouteConfig[$Url];
             if (gettype($function) == 'object') {
-                \Framework\App::$app->get('ReturnHandle')->Output($function());
+                App::$app->get('ReturnHandle')->Output($function());
                 die();
             }
         }
@@ -87,13 +87,24 @@ class Router implements RouterInterfaces
     /**
      * 传统URL请求匹配
      */
-    public function TraditionUrl()
+    private function TraditionUrl()
     {
         $Project = get(Visit::$request['Project']);
         $Controller = get(Visit::$request['Controller']);
         $Function = get(Visit::$request['Function']);
         if (!empty($Project)) {
-            Visit::$param['Project'] = $Project;
+            $list = Structure::$ProjectList;
+            $ins = ['model','view'];
+            foreach ($list as $key=>$val){
+                if(in_array($val,$ins)){ unset($list[$key]); }
+            }
+            if(in_array($Project,$list)){
+                Visit::$param['Project'] = $Project;
+            }else{
+                App::$app->get('LogicExceptions')->readErrorFile([
+                    'message' => '抱歉,您请求的实例不存在!(请检查您的GET参数'.Visit::$request['Project'].')'
+                ]);
+            }
         }
         if (!empty($Controller)) {
             Visit::$param['Controller'] = $Controller;
@@ -102,5 +113,4 @@ class Router implements RouterInterfaces
             Visit::$param['Function'] = $Function;
         }
     }
-
 }

@@ -2,6 +2,7 @@
 
 namespace Framework\Library\Process;
 
+use Framework\App;
 /**
  * 数据基础模型
  * Class Db
@@ -39,8 +40,7 @@ class Db
      */
     public function __construct()
     {
-        $dbconfig = \Framework\App::$app->get('Config')->get('Db');
-        $this->init($dbconfig);
+        $this->init(Config::$AppConfig['db']);
     }
 
     /**

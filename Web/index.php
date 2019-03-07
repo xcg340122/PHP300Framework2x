@@ -1,6 +1,6 @@
 <?php
 
-/** PHP300Framework默认入口 version:2.4.0 */
+/** PHP300Framework默认入口 version:2.5.0 */
 
 if (substr(PHP_VERSION, 0, 3) < 5.4) die('<meta charset="UTF-8">PHP300:请将PHP版本切换至5.3以上运行!');
 

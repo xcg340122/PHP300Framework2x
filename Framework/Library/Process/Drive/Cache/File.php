@@ -1,6 +1,8 @@
 <?php
 
 namespace Framework\Library\Process\Drive\Cache;
+use Framework\App;
+use Framework\Library\Process\Running;
 
 /**
  * 文件缓存类
@@ -13,7 +15,7 @@ class File
      * 缓存目录
      * @var string
      */
-    private $cache_dir = 'tmp/cache';
+    private $cache_dir = '';
 
     /**
      * 构造方法
@@ -22,6 +24,7 @@ class File
      */
     public function __construct(array $options = array())
     {
+        $this->cache_dir = Running::$framworkPath.'/Project/runtime/tmp';
         $available_options = array('cache_dir');
         foreach ($available_options as $name) {
             if (isset($options[$name])) {
@@ -109,7 +112,7 @@ class File
      * @param int $lifetime
      * @return bool
      */
-    public function save($id, $data, $lifetime = 3600)
+    public function set($id, $data, $lifetime = 3600)
     {
         $dir = $this->getDirectory($id);
         if (!is_dir($dir)) {

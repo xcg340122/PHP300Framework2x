@@ -53,6 +53,7 @@ function Db($table = '', $config = null)
     return null;
 }
 
+
 /**
  * 读取配置信息
  * @param string $configName 配置名称

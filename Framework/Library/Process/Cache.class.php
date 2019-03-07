@@ -1,6 +1,7 @@
 <?php
-
 namespace Framework\Library\Process;
+
+use Framework\App;
 
 /**
  * 缓存器
@@ -34,9 +35,9 @@ class Cache
      */
     public function init()
     {
-        $CacheConfig = \Framework\App::$app->get('Config')->get('Cache');
+        $CacheConfig = Config::$AppConfig['cache'];
         if (is_array($CacheConfig) && isset($CacheConfig['ip'])) {
-            $this->object = \Framework\App::$app->get($this->CacheType[strtolower($CacheConfig['cacheType'])]);
+            $this->object = App::$app->get($this->CacheType[strtolower($CacheConfig['cacheType'])]);
             if(strtolower($CacheConfig['cacheType']) != 'file'){
                 $this->object->connect($CacheConfig['ip'], $CacheConfig['port']);
             }

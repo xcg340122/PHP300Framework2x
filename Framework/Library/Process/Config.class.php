@@ -2,6 +2,7 @@
 
 namespace Framework\Library\Process;
 
+use Framework\App;
 use \Framework\Library\Interfaces\ConfigInterface as ConfigInterfaces;
 
 /**
@@ -25,21 +26,30 @@ class Config implements ConfigInterfaces
     private $Config = [];
 
     /**
+     * 应用配置
+     * @var array
+     */
+    static public $AppConfig = [];
+
+    /**
      * 初始化配置信息
      * Config constructor.
      */
     public function __construct()
     {
-        $this->ConfigPath = Running::$framworkPath . 'Project/Common/Config';
+        $this-> ConfigPath = Running::$framworkPath . 'Project/config';
         if (!file_exists($this->ConfigPath)) {
-            \Framework\App::$app->get('Structure')->createDir($this->ConfigPath);
+            App::$app->get('Structure')->createDir($this->ConfigPath);
         } else {
-            $fileList = \Framework\App::$app->get('Structure')->getDir($this->ConfigPath);
+            $fileList = App::$app->get('Structure')->getDir($this->ConfigPath);
             if (is_array($fileList)) {
                 foreach ($fileList as $key => $value) {
                     if (strpos(strtolower($value), '.cfg.php')) {
                         $this->read(str_replace('.cfg.php', '', $value), $this->ConfigPath . '/' . $value);
                     }
+                }
+                if(isset($this->Config['App'])){
+                    self::$AppConfig = $this->Config['App'];
                 }
             }
         }
@@ -48,6 +58,7 @@ class Config implements ConfigInterfaces
 
     /**
      * 读取配置文件
+     * @param string $configName
      * @param string $filePath
      */
     private function read($configName = '', $filePath = '')

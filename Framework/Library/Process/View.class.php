@@ -54,9 +54,9 @@ class View implements ViewInterfaces
     public function init()
     {
         $dir = Running::$iserror ? 'View' : Visit::$param['Project'];
-        $this->ViewCompile = Running::$framworkPath . 'Project/Runtime/' . $dir . '/View';
-        $this->ViewPath = Running::$framworkPath . 'Project/View';
-        $this->ViewCache = $this->ViewCompile . '/Cache';
+        $this->ViewCompile = Running::$framworkPath . 'Project/runtime/' . $dir . '/view';
+        $this->ViewPath = Running::$framworkPath . 'Project/view';
+        $this->ViewCache = $this->ViewCompile . '/cache';
         $functions = spl_autoload_functions();
         foreach ($functions as $function) {
             spl_autoload_unregister($function);

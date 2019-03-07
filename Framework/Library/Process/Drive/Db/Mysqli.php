@@ -251,7 +251,18 @@ class Mysqli implements DbInterfaces
                     }
                 }else{
                     foreach ($qryArray['field'] as $key=>$value){
-                        $field .= '`'.$value . '`,';
+                        $val_arr = explode('.',$value);
+                        if(count($val_arr) > 1){
+                            $str = '';
+                            foreach ($val_arr as $values){
+                                $str .= '`'.$values.'`.';
+                            }
+                            $str = rtrim($str,'..');
+                            $field .= $str . ',';
+                        }else{
+                            $field .= '`'.$value . '`,';
+                        }
+
                     }
                     $field = rtrim($field,'.,');
                 }

@@ -22,6 +22,7 @@ class Log implements LogInterfaces
      * 写出动作(划分日期和大小)
      * @param $fileName
      * @param $Content
+     * @param int $count
      */
     private function Write($fileName, $Content, $count = 0)
     {
@@ -50,7 +51,7 @@ class Log implements LogInterfaces
      */
     public function Record($LogPath, $fileName, $Log)
     {
-        if (strpos($LogPath, '/') === false) $LogPath = Running::$framworkPath . '/Project/Runtime/' . $LogPath . '/Log';
+        if (strpos($LogPath, '/') === false) $LogPath = Running::$framworkPath . '/Project/runtime/' . $LogPath . '/log';
         if (!empty($Log)) {
             if (!file_exists($LogPath)) {
                 Structure::createDir($LogPath);

@@ -2,12 +2,13 @@
 
 namespace Framework\Library\Process;
 
+use Framework\App;
 use Framework\Library\Interfaces\VisitInterface as VisitInterfaces;
 
 /**
  * 访问处理器
  * Class Visit
- * @package Framework\library\_class
+ * @package Framework\Library\Process
  */
 class Visit implements VisitInterfaces
 {
@@ -30,9 +31,16 @@ class Visit implements VisitInterfaces
      */
     public function __construct()
     {
-        $VisitConfig = \Framework\App::$app->get('Config')->get('frame');
+        $VisitConfig = App::$app->get('Config')->get('frame');
         if (isset($VisitConfig['Visit'])){ self::$param = $VisitConfig['Visit']; }
         if (isset($VisitConfig['Parameter'])){ self::$request = $VisitConfig['Parameter']; }
+        $VisitConfig = Config::$AppConfig['safe'];
+        $origin = isset($_SERVER['HTTP_ORIGIN'])? $_SERVER['HTTP_ORIGIN'] : '';
+        if(!empty($origin)){
+            if(in_array($origin, $VisitConfig['ajax_domain'])){
+                header('Access-Control-Allow-Origin:'.$origin);
+            }
+        }
     }
 
     /**
@@ -41,7 +49,7 @@ class Visit implements VisitInterfaces
      */
     static public function mergeParam()
     {
-        \Framework\App::$app->get('Router');
+        App::$app->get('Router');
         return self::$param['namespace'] . '\\' . ucwords(self::$param['Project']) . '\\' . ucwords(self::$param['Controller']);
     }
 
@@ -52,7 +60,7 @@ class Visit implements VisitInterfaces
     static public function getfunction()
     {
         if (empty(self::$param['Function'])) {
-            \Framework\App::$app->get('LogicExceptions')->readErrorFile([
+            App::$app->get('LogicExceptions')->readErrorFile([
                 'file' => Structure::$endfile,
                 'message' => '无法执行空方法!'
             ]);
@@ -75,7 +83,7 @@ class Visit implements VisitInterfaces
                     }
                 }
                 unset($param[3]);
-                \Framework\App::$app->get('Visit')->bind($param);
+                App::$app->get('Visit')->bind($param);
             } else {
                 if (count($param) === 1) {
                     return true;

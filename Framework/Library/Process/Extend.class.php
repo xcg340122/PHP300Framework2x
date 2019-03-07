@@ -2,6 +2,8 @@
 
 namespace Framework\Library\Process;
 
+use Framework\App;
+
 /**
  * 系统扩展器
  * Class Extend
@@ -9,7 +11,6 @@ namespace Framework\Library\Process;
  */
 class Extend
 {
-
     /**
      * 包路径
      * @var string
@@ -53,7 +54,7 @@ class Extend
                 include_once $PackageName;
                 return true;
             }
-            if (in_array($extension, ['zip', 'tar'])) {
+            if (in_array($extension, ['zip', 'tar', 'rar'])) {
                 $Packagezip = $this->getPackageName($PackageName);
                 $this->releasePackage($PackageName, $this->PackagePath . 'Cache', $Packagezip);
             }
@@ -106,13 +107,13 @@ class Extend
                 $zip->close();
                 $this->iszipload($folder, $Packagezip);
             } else {
-                \Framework\App::$app->get('LogicExceptions')->readErrorFile([
+                App::$app->get('LogicExceptions')->readErrorFile([
                     'file' => $zipfile,
                     'message' => "'{$zipfile}' 读取文件失败!"
                 ]);
             }
         } else {
-            \Framework\App::$app->get('LogicExceptions')->readErrorFile([
+            App::$app->get('LogicExceptions')->readErrorFile([
                 'file' => $zipfile,
                 'message' => "你需要先启动 PHP-ZipArchive 扩展!"
             ]);
