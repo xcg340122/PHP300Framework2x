@@ -53,7 +53,7 @@ class View implements ViewInterfaces
      */
     public function init()
     {
-        $dir = Running::$iserror ? 'View' : Visit::$param['Project'];
+        $dir = Running::$iserror ? 'view' : Visit::$param['Project'];
         $this->ViewCompile = Running::$framworkPath . 'Project/runtime/' . $dir . '/view';
         $this->ViewPath = Running::$framworkPath . 'Project/view';
         $this->ViewCache = $this->ViewCompile . '/cache';
