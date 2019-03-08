@@ -50,7 +50,7 @@ class Visit implements VisitInterfaces
     static public function mergeParam()
     {
         App::$app->get('Router');
-        return self::$param['namespace'] . '\\' . ucwords(self::$param['Project']) . '\\' . ucwords(self::$param['Controller']);
+        return self::$param['namespace'] . '\\' . strtolower(self::$param['Project']) . '\\' . ucwords(self::$param['Controller']);
     }
 
     /**

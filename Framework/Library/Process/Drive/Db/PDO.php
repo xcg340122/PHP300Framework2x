@@ -342,17 +342,7 @@ class Pdo implements DbInterfaces
                     }
                 }else{
                     foreach ($qryArray['field'] as $key=>$value){
-                        $val_arr = explode('.',$value);
-                        if(count($val_arr) > 1){
-                            $str = '';
-                            foreach ($val_arr as $values){
-                                $str .= '`'.$values.'`.';
-                            }
-                            $str = rtrim($str,'..');
-                            $field .= $str . ',';
-                        }else{
-                            $field .= '`'.$value . '`,';
-                        }
+                        $field .= $this->inlon($value);
                     }
                     $field = rtrim($field,'.,');
                 }
@@ -419,6 +409,8 @@ class Pdo implements DbInterfaces
                     $value[1] = addslashes($value[1]);
                     switch (strtolower($value[0])) {
                         case 'in':
+                            $key = $this->inlon($key);
+                            $key = rtrim($key,'.,');
                             $where .= $key . ' IN(' . $value[1] . ') AND ';
                             break;
                         case 'string':
@@ -426,18 +418,42 @@ class Pdo implements DbInterfaces
                             break;
                         default:
                             $value[1] = is_numeric($value[1]) ? $value[1] : "'" . $value[1] . "'";
+                            $key = $this->inlon($key);
+                            $key = rtrim($key,'.,');
                             $where .= $key . ' ' . $value[0] . ' ' . $value[1] . ' AND ';
                             break;
                     }
                 } else {
                     $value = addslashes($value);
                     $value = is_numeric($value) ? $value : "'" . $value . "'";
+                    $key = $this->inlon($key);
+                    $key = rtrim($key,'.,');
                     $where .= $key . '=' . $value . ' AND ';
                 }
             }
             return rtrim($where, '. AND ');
         }
         return $where . $whereData;
+    }
+
+    /**
+     * 追加字段标识符
+     * @param $key
+     * @return string
+     */
+    private function inlon($key)
+    {
+        $val_arr = explode('.',$key);
+        if(count($val_arr) > 1){
+            $str = '';
+            foreach ($val_arr as $values){
+                $str .= '`'.$values.'`.';
+            }
+            $str = rtrim($str,'..');
+            return $str . ',';
+        }else{
+            return '`'.$key . '`,';
+        }
     }
 
     /**

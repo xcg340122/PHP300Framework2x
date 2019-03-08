@@ -1,5 +1,5 @@
 <?php
-namespace App\Home;
+namespace App\home;
 use \Framework\Library\Process\Auxiliary;
 
 /**

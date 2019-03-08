@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model;
+namespace App\model;
 
 /**
  * 数据模型类演示
