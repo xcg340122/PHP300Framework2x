@@ -20,6 +20,6 @@ class Index
             return 'hello this is cli mode,framework version:2.5.0!';
         }
 
-        return View('Home/index')->data(['show' => 'PHP300Framework - 想象无极限', 'describe' => '每个人的生命都是一只小船，梦想是小船的风帆。', 'version' => '2.5.0'])->get();
+        return View('home/index')->data(['show' => 'PHP300Framework - 想象无极限', 'describe' => '每个人的生命都是一只小船，梦想是小船的风帆。', 'version' => '2.5.0'])->get();
     }
 }
