@@ -150,6 +150,8 @@ class Structure
         if(Auxiliary::isWin() === false && file_exists($path) === false){
             if(file_put_contents($path,'') === false){
                 die('PHP300Framework Adequate privileges are required to run!('.$path.')');
+            }else{
+                unlink($path);
             }
         }
     }

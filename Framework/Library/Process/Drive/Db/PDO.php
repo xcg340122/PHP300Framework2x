@@ -248,7 +248,7 @@ class Pdo implements DbInterfaces
             $Logs .= "\r\n[message] " . $errormsg;
         }
 
-        \Framework\App::$app->get('Log')->Record(\Framework\Library\Process\Running::$framworkPath . '/Project/Runtime/Datebase', 'sql', $Logs);
+        \Framework\App::$app->get('Log')->Record(\Framework\Library\Process\Running::$framworkPath . '/Project/runtime/datebase', 'sql', $Logs);
         if ($iserror) {
             $message = $errormsg . ' (SQL：' . $sql . ')';
             \Framework\App::$app->get('LogicExceptions')->readErrorFile([

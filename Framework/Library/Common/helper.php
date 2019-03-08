@@ -86,7 +86,7 @@ function View($fileName = '', $dir = '')
     $Object = \Framework\App::$app->get('View')->init();
     if (empty($fileName) && empty($dir)) return $Object;
     if (empty($dir) && !empty($fileName)) {
-        $ViewPath = \Framework\Library\Process\Running::$framworkPath . 'Project/View';
+        $ViewPath = \Framework\Library\Process\Running::$framworkPath . 'Project/view';
         $fileName = $ViewPath . '/' . $fileName . '.html';
     } else {
         $fileName = $dir;
@@ -104,8 +104,9 @@ function View($fileName = '', $dir = '')
 
 /**
  * 获取GET值
- * @param string $value GET的键名称
- * @return string 为空时返回
+ * @param $value
+ * @param string $null
+ * @return string
  */
 function get($value, $null = '')
 {
@@ -114,8 +115,9 @@ function get($value, $null = '')
 
 /**
  * 获取POST值
- * @param string $value POST的键名称
- * @return string 为空时返回
+ * @param $value
+ * @param string $null
+ * @return string
  */
 function post($value, $null = '')
 {
