@@ -94,7 +94,7 @@ class View implements ViewInterfaces
         }
         $html = $this->View->fetch($this->file);
         if (strpos($this->file, 'error.tpl') !== false && $html == '') {
-            die(Auxiliary::ShowText('程序异常,请查看日志!'));
+            die(Tool::ShowText('程序异常,请查看日志!'));
         }
         return $html;
     }

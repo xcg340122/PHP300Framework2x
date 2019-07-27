@@ -3,7 +3,7 @@
 namespace Framework\Library\Process\Drive\Db;
 
 use Framework\Library\Interfaces\DbInterface as DbInterfaces;
-use Framework\Library\Process\Auxiliary;
+use Framework\Library\Process\Tool;
 
 /**
  * Mysqli Driver
@@ -94,7 +94,7 @@ class Mysqli implements DbInterfaces
     /**
      * 连接数据库
      * @param array $config
-     * @return \mysqli|null
+     * @return bool|mixed|\mysqli|null
      */
     public function connect($config = [])
     {
@@ -109,9 +109,10 @@ class Mysqli implements DbInterfaces
         } else {
             \Framework\App::$app->get('LogicExceptions')->readErrorFile([
                 'file' => __FILE__,
-                'message' => 'Mysql Host[ ' . $config['host'] . ' ] :: ' . Auxiliary::toUTF8(mysqli_connect_error())
+                'message' => 'Mysql Host[ ' . $config['host'] . ' ] :: ' . Tool::toUTF8(mysqli_connect_error())
             ]);
         }
+        return false;
     }
 
     /**
@@ -176,8 +177,8 @@ class Mysqli implements DbInterfaces
 
     /**
      * 设定查询表
-     * @param $tabName
-     * @return $this
+     * @param string $tabName
+     * @return $this|bool|mixed
      */
     public function table($tabName = '')
     {
@@ -191,6 +192,7 @@ class Mysqli implements DbInterfaces
                 'message' => 'Need to fill in Table Value!',
             ]);
         }
+        return false;
     }
 
     /**
@@ -236,26 +238,26 @@ class Mysqli implements DbInterfaces
         $limit = '';
 
         if (isset($qryArray['field'])) {
-            if(is_array($qryArray['field'])){
-                if(isset($qryArray['field']['NOT'])){
-                    if(is_array($qryArray['field']['NOT'])){
+            if (is_array($qryArray['field'])) {
+                if (isset($qryArray['field']['NOT'])) {
+                    if (is_array($qryArray['field']['NOT'])) {
                         $field_arr = $this->getField();
-                        if(is_array($field_arr)){
-                            foreach ($field_arr as $key=>$value) {
-                                if(!in_array($value['COLUMN_NAME'] , $qryArray['field']['NOT'])){
-                                    $field .= '`'.$value['COLUMN_NAME'] . '`,';
+                        if (is_array($field_arr)) {
+                            foreach ($field_arr as $key => $value) {
+                                if (!in_array($value['COLUMN_NAME'], $qryArray['field']['NOT'])) {
+                                    $field .= '`' . $value['COLUMN_NAME'] . '`,';
                                 }
                             }
-                            $field = rtrim($field,'.,');
+                            $field = rtrim($field, '.,');
                         }
                     }
-                }else{
-                    foreach ($qryArray['field'] as $key=>$value){
+                } else {
+                    foreach ($qryArray['field'] as $key => $value) {
                         $field .= $this->inlon($value);
                     }
-                    $field = rtrim($field,'.,');
+                    $field = rtrim($field, '.,');
                 }
-            }else{
+            } else {
                 $field = $qryArray['field'];
             }
         }
@@ -317,7 +319,9 @@ class Mysqli implements DbInterfaces
      */
     private function structureWhere($whereData = [])
     {
-        if(empty($whereData)){ return ''; }
+        if (empty($whereData)) {
+            return '';
+        }
         $where = ' WHERE ';
         if (is_array($whereData)) {
             foreach ($whereData as $key => $value) {
@@ -326,7 +330,7 @@ class Mysqli implements DbInterfaces
                     switch (strtolower($value[0])) {
                         case 'in':
                             $key = $this->inlon($key);
-                            $key = rtrim($key,'.,');
+                            $key = rtrim($key, '.,');
                             $where .= $key . ' IN(' . $value[1] . ') AND ';
                             break;
                         case 'string':
@@ -335,7 +339,7 @@ class Mysqli implements DbInterfaces
                         default:
                             $value[1] = is_numeric($value[1]) ? $value[1] : "'" . $value[1] . "'";
                             $key = $this->inlon($key);
-                            $key = rtrim($key,'.,');
+                            $key = rtrim($key, '.,');
                             $where .= $key . ' ' . $value[0] . ' ' . $value[1] . ' AND ';
                             break;
                     }
@@ -343,7 +347,7 @@ class Mysqli implements DbInterfaces
                     $value = mysqli_real_escape_string($this->link, $value);
                     $value = is_numeric($value) ? $value : "'" . $value . "'";
                     $key = $this->inlon($key);
-                    $key = rtrim($key,'.,');
+                    $key = rtrim($key, '.,');
                     $where .= $key . '=' . $value . ' AND ';
                 }
             }
@@ -359,16 +363,16 @@ class Mysqli implements DbInterfaces
      */
     private function inlon($key)
     {
-        $val_arr = explode('.',$key);
-        if(count($val_arr) > 1){
+        $val_arr = explode('.', $key);
+        if (count($val_arr) > 1) {
             $str = '';
-            foreach ($val_arr as $values){
-                $str .= '`'.$values.'`.';
+            foreach ($val_arr as $values) {
+                $str .= '`' . $values . '`.';
             }
-            $str = rtrim($str,'..');
+            $str = rtrim($str, '..');
             return $str . ',';
-        }else{
-            return '`'.$key . '`,';
+        } else {
+            return '`' . $key . '`,';
         }
     }
 
@@ -412,6 +416,7 @@ class Mysqli implements DbInterfaces
                 'message' => '数据库连接失败或尚未连接'
             ]);
         }
+        return false;
     }
 
     /**

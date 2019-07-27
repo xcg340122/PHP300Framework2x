@@ -55,7 +55,7 @@ class Running
     static public function setconstant()
     {
         $define = [
-            'RES' => Auxiliary::getPublic(),
+            'RES' => Tool::getPublic(),
             '_P' => Visit::$param['Project'],
             '_C' => Visit::$param['Controller'],
             '_F' => Visit::$param['Function'],

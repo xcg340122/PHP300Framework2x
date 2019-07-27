@@ -28,8 +28,9 @@ function dump($vars, $label = '', $return = false)
 
 /**
  * 数据模型操作
- * @param null $config 操作数据的配置名称
- * @return mixed
+ * @param string $table 操作的表名
+ * @param null $config 操作的配置对象
+ * @return bool|mixed|null
  */
 function Db($table = '', $config = null)
 {
@@ -110,7 +111,7 @@ function View($fileName = '', $dir = '')
  */
 function get($value, $null = '')
 {
-    return \Framework\Library\Process\Auxiliary::Receive('get.' . $value, $null);
+    return \Framework\Library\Process\Tool::Receive('get.' . $value, $null);
 }
 
 /**
@@ -121,7 +122,7 @@ function get($value, $null = '')
  */
 function post($value, $null = '')
 {
-    return \Framework\Library\Process\Auxiliary::Receive('post.' . $value, $null);
+    return \Framework\Library\Process\Tool::Receive('post.' . $value, $null);
 }
 
 /**

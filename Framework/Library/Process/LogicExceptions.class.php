@@ -56,7 +56,7 @@ class LogicExceptions implements LogicExceptionsInterfaces
                 30719 => 'E_ALL',
             ];
             $error['type'] = (!empty($errorType[$error['type']])) ? ($errorType[$error['type']]) : ('Unknown');
-            $error['message'] = Auxiliary::toUTF8($error['message']);
+            $error['message'] = Tool::toUTF8($error['message']);
             if (isset(self::$Config['log']['error_switch']) && self::$Config['log']['error_switch'] === true) {
 
                 if ($this->judgeLevel($error['type'], self::$Config['log']['error_level'])) {
@@ -134,7 +134,7 @@ class LogicExceptions implements LogicExceptionsInterfaces
             ob_clean();
         }
         if (Running::$Debug === true) {
-            header('HTTP/1.1 ' . Auxiliary::httpcode(500));
+            header('HTTP/1.1 ' . Tool::httpcode(500));
             if (isset($error['file'])) {
                 $path = $error['file'];
                 $line = isset($error['line']) && is_int($error['line']) ? $error['line'] : 0;
@@ -156,7 +156,7 @@ class LogicExceptions implements LogicExceptionsInterfaces
                     $code = '';
                     foreach ($content as $key => $value) {
                         if ($value[0] == $line) {
-                            $value[0] = '<font color="red">>></font>';
+                            $value[0] = '<span color="red">>></span>';
                         }
                         $code .= $value[0] . ' ' . $value[1];
                     }
@@ -167,7 +167,7 @@ class LogicExceptions implements LogicExceptionsInterfaces
             $View->getView()->left_delimiter = '{';
             $View->getView()->right_delimiter = '}';
             die($View->data([
-                'Path' => Auxiliary::getPublic(),
+                'Path' => Tool::getPublic(),
                 'Error' => $error,
                 'Server' => $_SERVER
             ])->get());

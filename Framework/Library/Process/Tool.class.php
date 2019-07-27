@@ -4,10 +4,10 @@ namespace Framework\Library\Process;
 
 /**
  * 系统辅助器
- * Class Auxiliary
+ * Class Tool
  * @package Framework\Library\Process
  */
-class Auxiliary
+class Tool
 {
     /**
      * HTTP状态码

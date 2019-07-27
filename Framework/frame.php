@@ -50,7 +50,7 @@ class App
         }
         self::$app = $this;
         $this->corePath = is_dir($Path) ? $Path . '/Framework/' : __DIR__ . '/';
-        $this->inBatch(['Running', 'Auxiliary', 'Structure', 'Config', 'Log', 'LogicExceptions']);
+        $this->inBatch(['Running', 'Tool', 'Structure', 'Config', 'Log', 'LogicExceptions']);
         $this->get('Running')->startRecord();
     }
 

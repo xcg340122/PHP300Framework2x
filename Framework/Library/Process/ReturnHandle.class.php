@@ -9,14 +9,18 @@ namespace Framework\Library\Process;
  */
 class ReturnHandle
 {
-
     /**
      * 处理返回值输出
      * @param string $Obj
      */
     public function Output($Obj = '')
     {
-        echo is_object($Obj) || is_array($Obj) ? json_encode($Obj) : $Obj;
+        if(is_object($Obj) || is_array($Obj)){
+            header('content-type:application/json;charset=utf-8');
+            echo json_encode($Obj);
+        }else{
+            echo $Obj;
+        }
     }
 
 }
