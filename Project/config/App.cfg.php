@@ -42,7 +42,7 @@ return [
              */
             'dbType' => 'mysqli',
 
-            /** 是否连接数据库 */
+            /** 是否使用该数据库配置 */
             'connect' => false
         ]
     ],
@@ -78,7 +78,7 @@ return [
         '/home/index/test' => function () {
 
             //这里是自定义操作
-            return '欢迎访问用户test数据';
+            return '这是router配置中路由的测试';
         },
     ],
 
@@ -90,9 +90,9 @@ return [
         /**
          * ajax域名白名单(默认只允许当前域名)
          */
-        'ajax_domain' => [
-            '', /* 一行一个域名，需要带上协议，例如：https://www.baidu.com */
-        ],
+        'ajax_domain' => [ /* 一行一个域名，需要带上协议，例如：https://www.baidu.com */
+
+        ]
     ]
 
 ];

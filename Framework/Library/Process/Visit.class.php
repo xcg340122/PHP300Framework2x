@@ -32,13 +32,17 @@ class Visit implements VisitInterfaces
     public function __construct()
     {
         $VisitConfig = App::$app->get('Config')->get('frame');
-        if (isset($VisitConfig['Visit'])){ self::$param = $VisitConfig['Visit']; }
-        if (isset($VisitConfig['Parameter'])){ self::$request = $VisitConfig['Parameter']; }
+        if (isset($VisitConfig['Visit'])) {
+            self::$param = $VisitConfig['Visit'];
+        }
+        if (isset($VisitConfig['Parameter'])) {
+            self::$request = $VisitConfig['Parameter'];
+        }
         $VisitConfig = Config::$AppConfig['safe'];
-        $origin = isset($_SERVER['HTTP_ORIGIN'])? $_SERVER['HTTP_ORIGIN'] : '';
-        if(!empty($origin)){
-            if(in_array($origin, $VisitConfig['ajax_domain'])){
-                header('Access-Control-Allow-Origin:'.$origin);
+        $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
+        if (!empty($origin)) {
+            if (in_array($origin, $VisitConfig['ajax_domain'])) {
+                header('Access-Control-Allow-Origin:' . $origin);
             }
         }
     }
@@ -74,7 +78,7 @@ class Visit implements VisitInterfaces
      */
     static function setCliParam()
     {
-        if(isset($_SERVER['argv'])){
+        if (isset($_SERVER['argv'])) {
             $param = $_SERVER['argv'];
             if (count($param) > 3) {
                 foreach ($param as $key => $value) {
@@ -90,7 +94,7 @@ class Visit implements VisitInterfaces
                 }
                 die('PHP300::Inadequacy of parameters!');
             }
-        }else{
+        } else {
             die('PHP300:server.argv not found');
         }
         return false;
@@ -113,9 +117,12 @@ class Visit implements VisitInterfaces
                     self::$param['Function'] = $param[1];
                     break;
                 case 3:
-                    self::$param['Project'] = $param[0];
-                    self::$param['Controller'] = $param[1];
-                    self::$param['Function'] = $param[2];
+                    $banList = ['model','config','runtime','view'];
+                    if(!in_array(strtolower($param[0]),$banList)){
+                        self::$param['Project'] = $param[0];
+                        self::$param['Controller'] = $param[1];
+                        self::$param['Function'] = $param[2];
+                    }
                     break;
             }
             if (isset(self::$param['Function'])) {

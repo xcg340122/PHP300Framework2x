@@ -31,12 +31,10 @@ class Router implements RouterInterfaces
      */
     public function __construct()
     {
-        if (isset($_SERVER['PATH_INFO'])) {
-            $this->RouteConfig = Config::$AppConfig['router'];
-            self::$requestUrl = $_SERVER['PATH_INFO'];
-            $this->Route();
-            $this->Matching();
-        }
+        $this->RouteConfig = Config::$AppConfig['router'];
+        self::$requestUrl = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : $_SERVER['REQUEST_URI'];
+        $this->Route();
+        $this->Matching();
         $this->TraditionUrl();
     }
 
@@ -54,13 +52,6 @@ class Router implements RouterInterfaces
         if (empty($Url[1][0])) return;
         $Url = $Url[1][0];
         $Url = explode('/', $Url);
-        if (count($Url) > 0) {
-            $extend = explode('.', end($Url));
-            $ResourcesList = ['js', 'css', 'png', 'jpg', 'jpeg', 'bmp', 'ico', 'txt', 'gif', 'zip', 'rar', '7z', 'exe', 'msi', 'wav', 'mp3', 'avi', 'flv', 'md', 'json', 'ini'];
-            if (count($extend) > 1 && in_array(end($extend), $ResourcesList)) {
-                return;
-            }
-        }
         App::$app->get('Visit')->bind($Url);
     }
 

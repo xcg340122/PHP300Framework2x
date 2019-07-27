@@ -1,7 +1,9 @@
 <?php
+
 namespace Framework\Library\Process;
 
 use Framework\App;
+
 /**
  * 系统结构加载器
  * Class Structure
@@ -72,7 +74,7 @@ class Structure
      */
     private function RunTimeInit()
     {
-        $this->checkPower(Running::$framworkPath.'tmp');
+        $this->checkPower(Running::$framworkPath . 'tmp');
         $getPath = Running::$framworkPath . 'Project/';
         $CreateDefaultDir = ['log'];
         if (is_array(self::$ProjectList) && count(self::$ProjectList) > 0) {
@@ -93,7 +95,7 @@ class Structure
     {
         if (!is_dir($path)) {
             self::createDir(dirname($path));
-            if(mkdir($path, 0777) === false){
+            if (mkdir($path, 0777) === false) {
                 die('PHP300:No written permission -> (PATH:' . $path . ')');
             }
         }
@@ -135,8 +137,8 @@ class Structure
      */
     public function getStaticTpl()
     {
-        $file = Running::$framworkPath . 'Project/view' . Router::$requestUrl;
-        if (file_exists($file)) {
+        $file = Running::$framworkPath.'Project/view'.Router::$requestUrl;
+        if (file_exists($file) && is_file($file)) {
             die(View('', $file)->get());
         }
     }
@@ -147,10 +149,10 @@ class Structure
      */
     private function checkPower($path)
     {
-        if(Tool::isWin() === false && file_exists($path) === false){
-            if(file_put_contents($path,'') === false){
-                die('PHP300Framework Adequate privileges are required to run!('.$path.')');
-            }else{
+        if (Tool::isWin() === false && file_exists($path) === false) {
+            if (file_put_contents($path, '') === false) {
+                die('PHP300Framework Adequate privileges are required to run!(' . $path . ')');
+            } else {
                 unlink($path);
             }
         }
