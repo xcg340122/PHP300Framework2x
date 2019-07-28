@@ -9,32 +9,30 @@ use Framework\Library\Process\Visit;
 /**
  * 系统总线
  * Class App
+ * @author chungui
+ * @version 2.5.3
  * @package Framework
  */
 class App
 {
 
     /**
-     * 扩展实例
-     * @var Object
+     * @var Object 扩展实例
      */
     static public $extend;
 
     /**
-     * 应用实例
-     * @var Object
+     * @var Object 应用实例
      */
     static public $app;
 
     /**
-     * 框架路径
-     * @var String
+     * @var String 框架路径
      */
     public $corePath;
 
     /**
-     * 钩子列表
-     * @var array
+     * @var array 钩子列表
      */
     private $hook = [];
 
@@ -81,6 +79,7 @@ class App
 
     /**
      * 寄存实例对象
+     * @param string $Name
      * @param $Obj
      */
     public function put($Name, $Obj)

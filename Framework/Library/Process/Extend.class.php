@@ -12,20 +12,17 @@ use Framework\App;
 class Extend
 {
     /**
-     * 包路径
-     * @var string
+     * @var string 包路径
      */
     public $PackagePath;
 
     /**
-     * 类路径
-     * @var string
+     * @var string 类路径
      */
     public $ClassPath;
 
     /**
-     * 已加载的扩展容器
-     * @var string
+     * @var string 已加载的扩展容器
      */
     public $Extendbox;
 
@@ -37,7 +34,9 @@ class Extend
     {
         $this->PackagePath = Running::$framworkPath . 'Extend/Package/';
         $this->ClassPath = Running::$framworkPath . 'Extend/Class/';
-        if (file_exists(Running::$framworkPath . 'vendor/autoload.php')) require_once Running::$framworkPath . 'vendor/autoload.php';
+        if (file_exists(Running::$framworkPath . 'vendor/autoload.php')){
+            require_once Running::$framworkPath . 'vendor/autoload.php';
+        }
     }
 
     /**

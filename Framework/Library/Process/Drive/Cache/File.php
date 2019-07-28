@@ -1,7 +1,6 @@
 <?php
 
 namespace Framework\Library\Process\Drive\Cache;
-use Framework\App;
 use Framework\Library\Process\Running;
 
 /**

@@ -12,14 +12,12 @@ class Cache
 {
 
     /**
-     * 操作对象
-     * @var object
+     * @var object 操作对象
      */
     private $object;
 
     /**
-     * 数据库驱动映射
-     * @var array
+     * @var array 数据库驱动映射
      */
     private $CacheType = [
 

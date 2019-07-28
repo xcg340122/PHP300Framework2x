@@ -12,20 +12,17 @@ class Db
 {
 
     /**
-     * 数据库连接标识组
-     * @var array
+     * @var array 数据库连接标识组
      */
     private $link = [];
 
     /**
-     * 操作库对象
-     * @var string
+     * @var string 操作库对象
      */
     private $db = '';
 
     /**
-     * 数据库驱动映射
-     * @var array
+     * @var array 数据库驱动映射
      */
     private $dbType = [
 

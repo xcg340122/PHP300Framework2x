@@ -11,7 +11,7 @@ class ReturnHandle
 {
     /**
      * 处理返回值输出
-     * @param string $Obj
+     * @param string $Obj 反馈的数据信息
      */
     public function Output($Obj = '')
     {

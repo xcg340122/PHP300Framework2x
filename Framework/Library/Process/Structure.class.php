@@ -13,18 +13,17 @@ class Structure
 {
 
     /**
-     * 应用列表
-     * @var array
+     * @var array 应用列表
      */
     static public $ProjectList = [];
+
     /**
-     * 最后读入的文件
-     * @var string
+     * @var string 最后读入的文件
      */
     static public $endfile = null;
+
     /**
-     * 后缀信息
-     * @var string
+     * @var string 后缀信息
      */
     private $extend;
 

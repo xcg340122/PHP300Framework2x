@@ -12,38 +12,32 @@ use \Framework\Library\Interfaces\ViewInterface as ViewInterfaces;
 class View implements ViewInterfaces
 {
     /**
-     * 视图编译目录
-     * @var string
+     * @var string 视图编译目录
      */
     private $ViewCompile = '';
 
     /**
-     * 视图存放目录
-     * @var string
+     * @var string 视图存放目录
      */
     private $ViewPath = '';
 
     /**
-     * 视图缓存目录
-     * @var string
+     * @var string 视图缓存目录
      */
     private $ViewCache = '';
 
     /**
-     * 视图对象
-     * @var object
+     * @var object 视图对象
      */
     private $View;
 
     /**
-     * 模板文件
-     * @var string
+     * @var string 模板文件
      */
     private $file = '';
 
     /**
-     * 变量集合
-     * @var array
+     * @var array 变量集合
      */
     private $variable = [];
 
@@ -82,7 +76,7 @@ class View implements ViewInterfaces
 
     /**
      * 获取渲染数据
-     * @return bool
+     * @return bool|string
      */
     public function get()
     {
@@ -94,7 +88,7 @@ class View implements ViewInterfaces
         }
         $html = $this->View->fetch($this->file);
         if (strpos($this->file, 'error.tpl') !== false && $html == '') {
-            die(Tool::ShowText('程序异常,请查看日志!'));
+            die('程序异常,请查看日志!');
         }
         return $html;
     }

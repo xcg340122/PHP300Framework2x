@@ -59,7 +59,8 @@ class Running
             '_P' => Visit::$param['Project'],
             '_C' => Visit::$param['Controller'],
             '_F' => Visit::$param['Function'],
-            '_T' => time()
+            '_T' => time(),
+            '_V' => '2.5.3'
         ];
         foreach ($define as $key => $value) {
             define($key, $value);

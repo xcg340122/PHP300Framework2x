@@ -29,18 +29,23 @@ function dump($vars, $label = '', $return = false)
 /**
  * 数据模型操作
  * @param string $table 操作的表名
- * @param null $config 操作的配置对象
- * @return bool|mixed|null
+ * @param null|array $config 操作的配置对象
+ * @return \Framework\Library\Interfaces\DbInterface|bool|null
  */
 function Db($table = '', $config = null)
 {
+    /**
+     * @var \Framework\Library\Process\Db|\Framework\Library\Process\Drive\Db\Mysqli $link
+     */
     $Db = \Framework\App::$app->get('Db')->getlink();
     if (is_array($Db) && count($Db) > 0) {
         if (is_null($config)) {
             $link = current($Db);
             $link = $link['obj']->setlink($link['link']);
         }
-        if (!empty($Db[$config])) $link = $Db[$config]['obj']->setlink($Db[$config]['link']);
+        if (!empty($Db[$config])){
+            $link = $Db[$config]['obj']->setlink($Db[$config]['link']);
+        }
         if (isset($link)) {
             if (empty($table)) return $link;
             return $link->table($table);
@@ -50,15 +55,15 @@ function Db($table = '', $config = null)
         \Framework\App::$app->get('LogicExceptions')->readErrorFile([
             'message' => "您操作了数据库,但是没有发现有效的数据库配置!"
         ]);
+        return null;
     }
-    return null;
 }
 
 
 /**
  * 读取配置信息
  * @param string $configName 配置名称
- * @return bool
+ * @return \Framework\Library\Interfaces\ConfigInterface|bool
  */
 function Config($configName)
 {
@@ -68,7 +73,7 @@ function Config($configName)
 
 /**
  * 缓存模型操作
- * @return mixed
+ * @return \Framework\Library\Interfaces\CacheInterface|bool
  */
 function Cache()
 {
@@ -80,10 +85,13 @@ function Cache()
  * 渲染视图信息
  * @param string $fileName 模板文件名
  * @param string $dir 其他模板文件
- * @return mixed
+ * @return \Framework\Library\Interfaces\ViewInterface|bool
  */
 function View($fileName = '', $dir = '')
 {
+    /**
+     * @var \Framework\Library\Process\View $Object
+     */
     $Object = \Framework\App::$app->get('View')->init();
     if (empty($fileName) && empty($dir)) return $Object;
     if (empty($dir) && !empty($fileName)) {
@@ -107,7 +115,7 @@ function View($fileName = '', $dir = '')
  * 获取GET值
  * @param $value
  * @param string $null
- * @return string
+ * @return string|int|null
  */
 function get($value, $null = '')
 {
@@ -118,7 +126,7 @@ function get($value, $null = '')
  * 获取POST值
  * @param $value
  * @param string $null
- * @return string
+ * @return string|int|null
  */
 function post($value, $null = '')
 {
@@ -154,7 +162,7 @@ function extend($name, $type = 0)
  * 获取系统应用实例对象
  * @return \Framework\App|Object
  */
-function getapp()
+function getApp()
 {
     return \Framework\App::$app;
 }
@@ -197,7 +205,7 @@ function Error($msg = '操作异常', $url = '', $seconds = 3, $title = '系统�
 
 /**
  * Session操作
- * @return mixed
+ * @return \Framework\Library\Interfaces\SessionInterface
  */
 function Session()
 {
@@ -211,7 +219,7 @@ function Session()
  * @param string $name key名称
  * @param string $val value值
  * @param string $expire 过期时间
- * @return bool|null
+ * @return bool|null|string
  */
 function Cookie($name = '', $val = '', $expire = '0')
 {
@@ -241,7 +249,7 @@ function Cookie($name = '', $val = '', $expire = '0')
  * @param string $path 日志文件文件夹
  * @return bool
  */
-function Logs($logs = '', $name = 'logs', $path = 'MyLog')
+function logs($logs = '', $name = 'logs', $path = 'MyLog')
 {
     if (!empty($logs)) {
         return \Framework\App::$app->get('Log')->Record($path, $name, $logs);

@@ -13,8 +13,7 @@ use Framework\Library\Interfaces\LogicExceptionsInterface as LogicExceptionsInte
 class LogicExceptions implements LogicExceptionsInterfaces
 {
     /**
-     * 配置信息
-     * @var array
+     * @var array 配置信息
      */
     static public $Config;
 

@@ -2,7 +2,9 @@
 
 namespace Framework\Library\Process\Drive\Db;
 
+use Framework\App;
 use Framework\Library\Interfaces\DbInterface as DbInterfaces;
+use Framework\Library\Process\Running;
 
 /**
  * PDO Driver
@@ -12,74 +14,62 @@ class Pdo implements DbInterfaces
 {
 
     /**
-     * 数据错误信息
-     * @var string
+     * @var string 数据错误信息
      */
     public $dbErrorMsg = 'SQL IN WRONG: ';
 
     /**
-     * 获取方式
-     * @var int
+     * @var int 获取方式
      */
     public $fetchMethod = \PDO::FETCH_OBJ;
 
     /**
-     * 实例对象
-     * @var
+     * @var \PDO 实例对象
      */
     protected $pdo;
 
     /**
-     * 结果集
-     * @var bool
+     * @var bool|\PDORow|array 结果集
      */
     protected $result = false;
 
     /**
-     * 影响条数
-     * @var
+     * @var int 影响条数
      */
     protected $total;
 
     /**
-     * 操作表名
-     * @var null
+     * @var null|string 操作表名
      */
     protected $tableName = NULL;
 
     /**
-     * debug
-     * @var array
+     * @var array debug
      */
     protected $queryDebug = [];
 
     /**
-     * 数据主键
-     * @var string
+     * @var string 数据主键
      */
     protected $key = '';
 
     /**
-     * 是否缓存数据
-     * @var bool
+     * @var bool 是否缓存数据
      */
     protected $iscache = false;
 
     /**
-     * 数据表信息
-     * @var array
+     * @var array 数据表信息
      */
     protected $data = [];
 
     /**
-     * 数据库名
-     * @var string
+     * @var string 数据库名
      */
     protected $database = '';
 
     /**
-     * 表前缀
-     * @var string
+     * @var string 表前缀
      */
     protected $tabprefix = '';
 
@@ -95,7 +85,7 @@ class Pdo implements DbInterfaces
     /**
      * 连接数据库
      * @param array $config
-     * @return bool|PDO
+     * @return bool|mixed|\PDO
      */
     public function connect($config = [])
     {
@@ -157,7 +147,7 @@ class Pdo implements DbInterfaces
 
     /**
      * 获取默认记录
-     * @return null
+     * @return array|mixed|null
      */
     public function find()
     {
@@ -237,21 +227,25 @@ class Pdo implements DbInterfaces
      */
     private function handleres($sql, $iserror = false, $ex = [])
     {
+        /**
+         * @var \PDOException $ex
+         */
+        $errorMsg = '';
         if ($iserror) {
             $status = 'error';
-            $errormsg = $ex->getMessage();
+            $errorMsg = $ex->getMessage();
         } else {
             $status = 'success';
         }
         $Logs = "[{$status}] " . $sql;
-        if (isset($errormsg)) {
-            $Logs .= "\r\n[message] " . $errormsg;
+        if (isset($errorMsg)) {
+            $Logs .= "\r\n[message] " . $errorMsg;
         }
 
-        \Framework\App::$app->get('Log')->Record(\Framework\Library\Process\Running::$framworkPath . '/Project/runtime/datebase', 'sql', $Logs);
+        App::$app->get('Log')->Record(Running::$framworkPath . '/Project/runtime/datebase', 'sql', $Logs);
         if ($iserror) {
-            $message = $errormsg . ' (SQL：' . $sql . ')';
-            \Framework\App::$app->get('LogicExceptions')->readErrorFile([
+            $message = $errorMsg . ' (SQL：' . $sql . ')';
+            App::$app->get('LogicExceptions')->readErrorFile([
                 'type' => 'DataBase Error',
                 'message' => $message
             ]);
@@ -261,7 +255,7 @@ class Pdo implements DbInterfaces
     /**
      * 选择数据表
      * @param $tableName
-     * @return $this
+     * @return $this|bool
      */
     public function table($tableName = '')
     {
@@ -270,11 +264,12 @@ class Pdo implements DbInterfaces
             $this->getTableInfo();
             return $this;
         } else {
-            \Framework\App::$app->get('LogicExceptions')->readErrorFile([
+            App::$app->get('LogicExceptions')->readErrorFile([
                 'file' => __FILE__,
                 'message' => 'Need to fill in Table Value!',
             ]);
         }
+        return false;
     }
 
     /**
@@ -284,7 +279,7 @@ class Pdo implements DbInterfaces
     protected function getTableInfo()
     {
         if ($this->tableName == '') {
-            \Framework\App::$app->get('LogicExceptions')->readErrorFile([
+            App::$app->get('LogicExceptions')->readErrorFile([
                 'message' => '尚未设定操作的数据表名称'
             ]);
         } else {
@@ -315,7 +310,7 @@ class Pdo implements DbInterfaces
     /**
      * 查询数据
      * @param array $qryArray
-     * @return $this
+     * @return $this|bool
      */
     public function select($qryArray = [])
     {
@@ -392,6 +387,7 @@ class Pdo implements DbInterfaces
         } catch (\PDOException $ex) {
             $this->handleres($queryString, true, $ex);
         }
+        return false;
     }
 
     /**
@@ -558,10 +554,10 @@ class Pdo implements DbInterfaces
 
     /**
      * 删除数据
-     * @param $where
-     * @return mixed
+     * @param array|string $where
+     * @return bool|int
      */
-    public function delete($where)
+    public function delete($where = [])
     {
         if (!empty($where)) $where = $this->structureWhere($where);
 
@@ -578,6 +574,7 @@ class Pdo implements DbInterfaces
         } catch (\PDOException $ex) {
             $this->handleres($queryString, true, $ex);
         }
+        return false;
     }
 
     /**

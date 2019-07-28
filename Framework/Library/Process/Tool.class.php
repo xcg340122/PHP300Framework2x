@@ -62,17 +62,6 @@ class Tool
     }
 
     /**
-     * 返回一段兼容网页编码的文本
-     * @param string $text 编码的内容
-     * @param string $char 编码格式
-     * @return string
-     */
-    static public function ShowText($text = '', $char = "UTF-8")
-    {
-        return '<meta charset="' . $char . '">' . $text;
-    }
-
-    /**
      * 获取客户端IP
      * @return string
      */
@@ -100,7 +89,7 @@ class Tool
 
     /**
      * 302重定向
-     * @param $url
+     * @param string $url 跳转的URL地址
      */
     static public function redirect($url)
     {
@@ -316,8 +305,8 @@ class Tool
 
     /**
      * 通过一个文本影响加密字符
-     * @param $pwd
-     * @param string $str
+     * @param string $pwd 影响密码
+     * @param string $str 欲加密的内容
      * @return string
      */
     static public function impact($pwd,$str='')

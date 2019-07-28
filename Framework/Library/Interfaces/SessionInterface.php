@@ -17,22 +17,22 @@ interface SessionInterface
 
     /**
      * 获取session
-     * @param string $name key名称
-     * @return mixed
+     * @param string $name 获取的键名称
+     * @return mixed|string|array
      */
     public function get($name='');
 
     /**
      * 设置session
-     * @param string $name key名称
-     * @param string $value value值
+     * @param string $name 设置的键名称
+     * @param string|array $value 设置的值
      * @return mixed
      */
     public function set($name='php300',$value='');
 
     /**
      * 删除session
-     * @param string $name key名称
+     * @param string $name 删除的键名称
      * @return mixed
      */
     public function del($name='');

@@ -34,8 +34,10 @@ class Redis implements CacheInterfaces
 
     /**
      * 连接缓存服务器
-     * @param $ip
-     * @param $port
+     * @param string $ip 服务器IP
+     * @param int|string $port 服务器端口
+     * @param array $auth 授权信息
+     * @return mixed|void
      */
     public function connect($ip, $port, $auth = [])
     {

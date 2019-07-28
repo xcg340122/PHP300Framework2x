@@ -13,8 +13,7 @@ class Log implements LogInterfaces
 {
 
     /**
-     * 日志文件后缀
-     * @var string
+     * @var string 日志文件后缀
      */
     public $extend = '.log';
 

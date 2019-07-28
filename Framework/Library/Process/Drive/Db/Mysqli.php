@@ -2,7 +2,9 @@
 
 namespace Framework\Library\Process\Drive\Db;
 
+use Framework\App;
 use Framework\Library\Interfaces\DbInterface as DbInterfaces;
+use Framework\Library\Process\Running;
 use Framework\Library\Process\Tool;
 
 /**
@@ -14,74 +16,63 @@ class Mysqli implements DbInterfaces
 
 
     /**
-     * 操作表
-     * @var string
+     * @var string 操作表
      */
     public $tableName = '';
 
     /**
-     * 连接资源
-     * @var null
+     * @var null|\mysqli 连接资源
      */
     public $link = null;
 
     /**
-     * 对象ID
-     * @var
+     * @var int 对象ID
      */
     public $queryId;
 
     /**
-     * 结果集
-     * @var bool
+     * @var bool|\mysqli_result|array 结果集
      */
     protected $result = false;
 
     /**
-     * 调试信息
-     * @var bool
+     * @var bool 调试信息
      */
     protected $queryDebug = false;
 
     /**
-     * 影响条数
-     * @var
+     * @var int 影响条数
      */
     protected $total;
 
     /**
-     * 数据主键
-     * @var string
+     * @var string 数据主键
      */
     protected $key = '';
 
     /**
-     * 是否缓存数据
-     * @var bool
+     * @var bool 是否缓存数据
      */
     protected $iscache = false;
 
     /**
-     * 数据表信息
-     * @var array
+     * @var array 数据表信息
      */
     protected $data = [];
 
     /**
-     * 数据库名
-     * @var string
+     * @var string 数据库名
      */
     protected $database = '';
 
     /**
-     * 表前缀
-     * @var string
+     * @var string 表前缀
      */
-    protected $tabprefix = '';
+    protected $tabPrefix = '';
 
     /**
      * 获取错误信息
-     * @return string
+     * @return string|null
      */
     public function getError()
     {
@@ -103,11 +94,11 @@ class Mysqli implements DbInterfaces
             $this->database = $config['database'];
             mysqli_query($this->link, 'set names ' . $config['char']);
             if (!empty($config['tabprefix'])) {
-                $this->tabprefix = $config['tabprefix'];
+                $this->tabPrefix = $config['tabprefix'];
             }
             return $this->link;
         } else {
-            \Framework\App::$app->get('LogicExceptions')->readErrorFile([
+            App::$app->get('LogicExceptions')->readErrorFile([
                 'file' => __FILE__,
                 'message' => 'Mysql Host[ ' . $config['host'] . ' ] :: ' . Tool::toUTF8(mysqli_connect_error())
             ]);
@@ -146,7 +137,7 @@ class Mysqli implements DbInterfaces
 
     /**
      * 获取默认记录
-     * @return null
+     * @return null|array
      */
     public function find()
     {
@@ -183,11 +174,11 @@ class Mysqli implements DbInterfaces
     public function table($tabName = '')
     {
         if (!empty($tabName)) {
-            $this->tableName = '`' . $this->tabprefix . $tabName . '`';
+            $this->tableName = '`' . $this->tabPrefix . $tabName . '`';
             $this->getTableInfo();
             return $this;
         } else {
-            \Framework\App::$app->get('LogicExceptions')->readErrorFile([
+            App::$app->get('LogicExceptions')->readErrorFile([
                 'file' => __FILE__,
                 'message' => 'Need to fill in Table Value!',
             ]);
@@ -202,11 +193,11 @@ class Mysqli implements DbInterfaces
     protected function getTableInfo()
     {
         if ($this->tableName == '') {
-            \Framework\App::$app->get('LogicExceptions')->readErrorFile([
+            App::$app->get('LogicExceptions')->readErrorFile([
                 'message' => '尚未设定操作的数据表名称'
             ]);
         } else {
-            $string = str_replace('`', '', "select COLUMN_NAME,DATA_TYPE,COLUMN_DEFAULT,COLUMN_KEY,COLUMN_COMMENT  from information_schema.COLUMNS where table_name = '" . $this->tableName . "';");
+            $string = str_replace('`', '', "SELECT COLUMN_NAME,DATA_TYPE,COLUMN_DEFAULT,COLUMN_KEY,COLUMN_COMMENT  FROM information_schema.COLUMNS WHERE table_name = '" . $this->tableName . "';");
             $info = mysqli_query($this->link, $string);
             if ($info !== false) {
                 $this->data = mysqli_fetch_all($info, MYSQLI_ASSOC);
@@ -387,20 +378,21 @@ class Mysqli implements DbInterfaces
         if ($this->link != null) {
             $this->queryId = mysqli_query($this->link, $queryString);
 
+            $errorMsg = '';
             if ($this->queryId === false) {
                 $status = 'error';
-                $errormsg = mysqli_error($this->link);
+                $errorMsg = mysqli_error($this->link);
             } else {
                 $status = 'success';
             }
             $Logs = "[{$status}] " . $queryString;
-            if (isset($errormsg)) {
-                $Logs .= "\r\n[message] " . $errormsg;
+            if (!empty($errorMsg)) {
+                $Logs .= "\r\n[message] " . $errorMsg;
             }
-            \Framework\App::$app->get('Log')->Record(\Framework\Library\Process\Running::$framworkPath . '/Project/runtime/datebase', 'sql', $Logs);
+            App::$app->get('Log')->Record(Running::$framworkPath . '/Project/runtime/datebase', 'sql', $Logs);
             if ($this->queryId === false) {
-                $message = $errormsg . ' (SQL：' . $queryString . ')';
-                \Framework\App::$app->get('LogicExceptions')->readErrorFile([
+                $message = $errorMsg . ' (SQL：' . $queryString . ')';
+                App::$app->get('LogicExceptions')->readErrorFile([
                     'type' => 'DataBase Error',
                     'message' => $message
                 ]);
@@ -412,7 +404,7 @@ class Mysqli implements DbInterfaces
             }
             return $this->queryId;
         } else {
-            \Framework\App::$app->get('LogicExceptions')->readErrorFile([
+            App::$app->get('LogicExceptions')->readErrorFile([
                 'message' => '数据库连接失败或尚未连接'
             ]);
         }
@@ -457,6 +449,7 @@ class Mysqli implements DbInterfaces
      */
     public function insert($dataArray = [])
     {
+        $value = '';
         if (is_array($dataArray) && count($dataArray) > 0) {
             $v_key = '';
             $v_value = '';
@@ -471,9 +464,9 @@ class Mysqli implements DbInterfaces
 
             $res = $this->query($queryString, true);
 
-            $this->queryDebug = ['string' => $queryString, 'value' => $value, 'insertedid' => $this->insert_id()];
+            $this->queryDebug = ['string' => $queryString, 'value' => $value, 'insertedId' => $this->insert_id()];
 
-            return $res === false ? false : $this->queryDebug['insertedid'];
+            return $res === false ? false : $this->queryDebug['insertedId'];
         }
         return false;
     }
@@ -502,7 +495,7 @@ class Mysqli implements DbInterfaces
      * 修改数据
      * @param array $dataArray
      * @param string $where
-     * @return bool
+     * @return bool|int
      */
     public function update($dataArray = [], $where = '')
     {
@@ -580,7 +573,7 @@ class Mysqli implements DbInterfaces
      */
     public function getTables()
     {
-        $res = mysqli_query($this->link, "select table_name from information_schema.tables where table_schema='" . $this->database . "' and table_type='base table';");
+        $res = mysqli_query($this->link, "SELECT table_name FROM information_schema.tables WHERE table_schema='" . $this->database . "' AND table_type='base table';");
         if ($res !== false) {
             $list = mysqli_fetch_all($res, MYSQLI_ASSOC);
             if (is_array($list)) {

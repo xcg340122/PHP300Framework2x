@@ -14,14 +14,12 @@ class Visit implements VisitInterfaces
 {
 
     /**
-     * 访问配置参数
-     * @var array
+     * @var array 访问配置参数
      */
     static public $param;
 
     /**
-     * 默认请求参数
-     * @var array
+     * @var array 默认请求参数
      */
     static public $request;
 

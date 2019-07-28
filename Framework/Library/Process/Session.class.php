@@ -13,14 +13,12 @@ class Session implements SessionInterfaces
 {
 
     /**
-     * 缓存名称
-     * @var string
+     * @var string 缓存名称
      */
     private $Name = 'PHP300SESSION';
 
     /**
-     * 缓存周期,单位：秒
-     * @var string
+     * @var string 缓存周期,单位：秒
      */
     private $Second = 0;
 

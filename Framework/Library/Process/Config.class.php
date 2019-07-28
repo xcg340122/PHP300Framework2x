@@ -14,20 +14,17 @@ class Config implements ConfigInterfaces
 {
 
     /**
-     * 配置路径
-     * @var string
+     * @var string 配置路径
      */
     private $ConfigPath;
 
     /**
-     * 配置容器
-     * @var array
+     * @var array 配置容器
      */
     private $Config = [];
 
     /**
-     * 应用配置
-     * @var array
+     * @var array 应用配置
      */
     static public $AppConfig = [];
 
@@ -97,6 +94,6 @@ class Config implements ConfigInterfaces
      */
     private function loadFrameconf()
     {
-        $this->read('frame', \Framework\App::$app->corePath . 'Config/frame.cfg.php');
+        $this->read('frame', App::$app->corePath . 'Config/frame.cfg.php');
     }
 }

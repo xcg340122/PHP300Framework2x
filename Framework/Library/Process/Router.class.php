@@ -14,14 +14,12 @@ class Router implements RouterInterfaces
 {
 
     /**
-     * 用户请求地址
-     * @var string
+     * @var string 用户请求地址
      */
     static public $requestUrl = '';
 
     /**
-     * 路由配置信息
-     * @var array
+     * @var array 路由配置信息
      */
     private $RouteConfig = [];
 
