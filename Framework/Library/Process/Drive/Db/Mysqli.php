@@ -360,7 +360,9 @@ class Mysqli implements DbInterfaces
             foreach ($val_arr as $values) {
                 $str .= '`' . $values . '`.';
             }
-            $str = rtrim($str, '..');
+            if(!empty($str)){
+                $str = rtrim($str, '.');
+            }
             return $str . ',';
         } else {
             return '`' . $key . '`,';
