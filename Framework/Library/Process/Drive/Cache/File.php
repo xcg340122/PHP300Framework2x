@@ -101,7 +101,10 @@ class File
     public function delete($id)
     {
         $file_name = $this->getFileName($id);
-        return unlink($file_name);
+		if(is_file($file_name)){
+			return unlink($file_name);
+		}
+        return false;
     }
 
     /**
