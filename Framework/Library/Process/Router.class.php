@@ -31,7 +31,7 @@ class Router implements RouterInterfaces
     {
         if(Running::$runMode != 'cli'){
             $this->RouteConfig = Config::$AppConfig['router'];
-            self::$requestUrl = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : $_SERVER['REQUEST_URI'];
+            self::$requestUrl = !empty($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : $_SERVER['REQUEST_URI'];
             $this->Route();
             $this->Matching();
             $this->TraditionUrl();
